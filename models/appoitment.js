@@ -10,7 +10,6 @@ const appoitmentSchema = mongoose.Schema({
     price: Number
 });
 
-
 const Appoitment = mongoose.model("Appoitment", appoitmentSchema);
 
 module.exports = Appoitment;
