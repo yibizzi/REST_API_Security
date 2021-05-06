@@ -27,6 +27,7 @@ const doctorSchema = mongoose.Schema({
     history: []
 });
 
+
 const Doctor = mongoose.model("doctor", doctorSchema);
 
 module.exports = Doctor;
