@@ -17,6 +17,7 @@ const patientSchema = mongoose.Schema({
     history: []
 });
 
+
 const Patient = mongoose.model("Patient", patientSchema);
 
 module.exports = Patient;
