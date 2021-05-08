@@ -1,8 +1,7 @@
-import mongoose from "mongoose";
-import Appoitment from "./appoitment";
+const mongoose = require("mongoose");
 
 const rating = {
-    patienfId: ObjectId,
+    patienfId: Number,
     rating: Number
 };
 
@@ -12,7 +11,7 @@ const doctorSchema = mongoose.Schema({
         firstName: String,
         lastName: String
     },
-    eamil: String,
+    email: String,
     password: String,
     phoneNumber: String,
     speciality: String,
@@ -22,9 +21,9 @@ const doctorSchema = mongoose.Schema({
     },
     description: String,
     ratings: [rating],
-    recievedRequests: [Appoitment],
-    appoitments: [Appoitment],
-    history: []
+    recievedRequests: Array,
+    appointments: Array,
+    history: Array
 });
 
 
