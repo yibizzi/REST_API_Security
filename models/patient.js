@@ -1,6 +1,4 @@
-import mongoose from "mongoose";
-import Appoitment from "./appoitment";
-
+const mongoose = require("mongoose");
 
 const patientSchema = mongoose.Schema({
     avatar: String,
@@ -12,9 +10,9 @@ const patientSchema = mongoose.Schema({
     age: Number,
     password: String,
     phoneNumber: String,
-    sendRequest: [Appoitment],
-    appoitments: [Appoitment],
-    history: []
+    sendRequest: Array,
+    appointments: Array,
+    history: Array
 });
 
 
