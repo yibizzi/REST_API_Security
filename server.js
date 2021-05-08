@@ -1,12 +1,15 @@
 //requiring modules
-import express from "express";
-import mongoose from "mongoose";
-import cors from "cors";
-import bodyParser from "body-parser";
-import {MONGO_URI, PORT} from "./app/config/config.js";
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+const MONGO_URI = require("./app/config/config").MONGO_URI;
+const PORT = require("./app/config/config").PORT;
 
 
-
+const appointmentRoutes = require("./routes/appointment");
+const doctorRoutes = require("./routes/doctor");
+const patientRoutes = require("./routes/patient");
 
 const app = express();
 
@@ -14,6 +17,11 @@ app.use(bodyParser.json({limit:"100mb", extended: true}));
 app.use(bodyParser.urlencoded({limit:"100mb", extended: true}));
 app.use(cors());
 
+
+// use routes
+app.use("/appointments", appointmentRoutes);
+app.use("/doctors", doctorRoutes);
+app.use("/patients", patientRoutes);
 
 
 
