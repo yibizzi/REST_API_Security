@@ -10,6 +10,7 @@ const PORT = require("./app/config/config").PORT;
 const appointmentRoutes = require("./routes/appointment");
 const doctorRoutes = require("./routes/doctor");
 const patientRoutes = require("./routes/patient");
+const adminRoutes = require("./routes/admin");
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use(cors());
 app.use("/appointments", appointmentRoutes);
 app.use("/doctors", doctorRoutes);
 app.use("/patients", patientRoutes);
+app.use("/admins", adminRoutes);
 
 
 
