@@ -7,6 +7,7 @@ const PORT = require("./app/config/config").PORT;
 const appointmentRoutes = require("./app/routes/appointment");
 const doctorRoutes = require("./app/routes/doctor");
 const patientRoutes = require("./app/routes/patient");
+const adminRoutes = require("./app/routes/admin");
 
 const app = express();
 
@@ -20,14 +21,15 @@ app.use((req, res, next) => {
 });
 
 //Body limits :
-app.use(bodyParser.json({limit:"30mb", extended: true}));
-app.use(bodyParser.urlencoded({limit:"30mb", extended: true}));
+app.use(bodyParser.json({ limit: "30mb", extended: true }));
+app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 
 
-// use routes
+//Use routes :
 app.use("/appointments", appointmentRoutes);
 app.use("/doctors", doctorRoutes);
 app.use("/patients", patientRoutes);
+app.use("/admins", adminRoutes);
 
 
 
