@@ -1,21 +1,21 @@
 const express = require("express");
 const router = express.Router();
-const doctorControllers = require("../controllers/doctor")
-const { doctorAuth } = require('../middlewares/auth');
+const doctorController = require("../controllers/doctor")
+const {auth} = require('../middlewares/auth');
 
 //Auth:
-router.post('/auth/signup',doctorControllers.signup);
-router.post('/auth/login', doctorControllers.login);
-router.post('/auth/forget-password',doctorControllers.forgetPassword);
-router.put('/auth/reset-password',doctorControllers.resetPassword);
-router.get('/auth/logout', doctorControllers.logout);
+router.post('/auth/signup', doctorController.signup);
+router.post('/auth/login', doctorController.login);
+router.post('/auth/forget-password', doctorController.forgetPassword);
+router.put('/auth/reset-password', doctorController.resetPassword);
+
 
 //Other Routes:
-router.get("/", doctorControllers.getDoctors);
-router.get("/:doctorId" , doctorControllers.getDoctorById);
-router.put("/:doctorId" , doctorControllers.updateDoctorInfo);
-router.put("/:doctorId/confirm-appointment" , doctorControllers.confirmAppointment);
-router.delete("/:doctorId" , doctorControllers.deleteDoctor);
+router.get("/", doctorController.getDoctors);
+router.get("/:doctorId", doctorController.getDoctorById);
+router.put("/:doctorId", doctorController.updateDoctorInfo);
+router.put("/:doctorId/confirm-appointment", doctorController.confirmAppointment);
+router.delete("/:doctorId", doctorController.deleteDoctor);
 
 
 module.exports = router;
