@@ -61,12 +61,6 @@ exports.updateAppointment = (req, res) => {
 
 exports.deleteAppointment = (req, res) => {
     Appointment.deleteOne({ _id: req.params.appointmentId })
-        .then(function (err) {
-            if (err) {
-                res.status(204).send(err);
-            } else {
-                res.status(200).send("appointment deleted successfully");
-            }
-        })
-        .catch(err => res.status(404).json({ error: "Appointment Not Found" }));
+        .then(res.status(200).json({message: "Appointment deleted successfully"}))
+        .catch(err => res.status(404).json(err));
 }
