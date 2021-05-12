@@ -29,7 +29,7 @@ app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use("/appointments", appointmentRoutes);
 app.use("/doctors", doctorRoutes);
 app.use("/patients", patientRoutes);
-app.use("/admins", adminRoutes);
+app.use("/admins",adminRoutes)
 
 
 

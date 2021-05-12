@@ -12,9 +12,8 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 var async = require("async");
 var crypto = require("crypto");
-const {
-  stringify
-} = require("querystring");
+
+const { stringify } = require("querystring");
 
 exports.signup = (req, res, next) => {
   bcrypt
@@ -43,6 +42,7 @@ exports.signup = (req, res, next) => {
     .catch((error) => res.status(500).json({
       error
     }));
+
 };
 
 exports.login = (req, res, next) => {
@@ -51,19 +51,14 @@ exports.login = (req, res, next) => {
   })
     .then((patient) => {
       if (!patient) {
-        return res.status(401).json({
-          error: "Patient Not Found"
-        });
+        return res.status(401).json({ error: "Patient not found!" });
       }
       bcrypt
         .compare(req.body.password, patient.password)
         .then((valid) => {
           if (!valid) {
-            return res.status(401).json({
-              error: "Wrong password"
-            });
+            return res.status(401).json({ error: "Worng password" });
           }
-
           res.status(200).json({
             patientId: patient._id,
             token: jwt.sign({
@@ -71,10 +66,6 @@ exports.login = (req, res, next) => {
             }, "RANDOM_TOKEN_SECRET", {
               expiresIn: "24h",
             }),
-          });
-
-          res.cookie("c", token, {
-            expire: new Date() + 9999,
           });
         })
         .catch((error) => res.status(500).json({
@@ -85,8 +76,6 @@ exports.login = (req, res, next) => {
       error
     }));
 };
-
-
 
 exports.forgetPassword = function (req, res) {
   async.waterfall(
@@ -119,6 +108,7 @@ exports.forgetPassword = function (req, res) {
           upsert: true,
           new: true
         }).exec(function (err, new_patient) {
+
           done(err, token, new_patient);
         });
       },
@@ -147,7 +137,7 @@ exports.forgetPassword = function (req, res) {
     ],
     function (err) {
       return res.status(422).json({
-        message: err
+        message: err,
       });
     }
   );
@@ -207,35 +197,41 @@ exports.getPatients = (req, res) => {
   if (Object.entries(query).length == 0) {
     Patient.find({})
       .then((patient) => res.json(patient))
-      .catch((err) => res.status(404).send({
-        error: "Patient Not Found"
-      }));
+      .catch((err) =>
+        res.status(404).send({
+          error: "Patient Not Found",
+        })
+      );
   } else {
     Patient.find(query)
       .then((patient) => res.json(patient))
-      .catch((err) => res.status(404).send({
-        error: "Patient Not Found"
-      }));
+      .catch((err) =>
+        res.status(404).send({
+          error: "Patient Not Found",
+        })
+      );
   }
 };
 
-
 exports.getPatientById = (req, res) => {
   Patient.findById({
-    _id: req.params.patientId
+    _id: req.params.patientId,
   })
     .then((patient) => res.status(202).json(patient))
-    .catch((err) => res.status(404).json({
-      error: "Patient Not Found"
-    }));
+    .catch((err) =>
+      res.status(404).json({
+        error: "Patient Not Found",
+      })
+    );
 };
 
 exports.updatePatientInfo = (req, res) => {
-  Patient.updateOne({
-    _id: req.params.patientId
-  }, req.body).then(function (
-    err
-  ) {
+  Patient.updateOne(
+    {
+      _id: req.params.patientId,
+    },
+    req.body
+  ).then(function (err) {
     if (err.nModified === 1) {
       res.status(200).send("Patient updated successfully");
     } else {
@@ -261,7 +257,6 @@ const cancelAppointmentPatient = (patient, req, res) => {
     patient.save();
   }
   return stateApp || stateReq;
-
 };
 
 const cancelAppointmentDoctor = (doctor, req, res) => {
@@ -285,42 +280,48 @@ const cancelAppointmentDoctor = (doctor, req, res) => {
 
 exports.cancelAppointment = (req, res) => {
   Appointment.findOne({
-    _id: req.body.appointmentId
+    _id: req.body.appointmentId,
   })
     .then(
       Patient.findOne({
-        _id: req.params.patientId
+        _id: req.params.patientId,
       })
         .then((patient) => {
           Doctor.findOne({
-            _id: req.body.doctorId
+            _id: req.body.doctorId,
           })
             .then((doctor) => {
-              const check = cancelAppointmentDoctor(doctor, req, res) && cancelAppointmentPatient(patient, req, res);
+              const check =
+                cancelAppointmentDoctor(doctor, req, res) &&
+                cancelAppointmentPatient(patient, req, res);
               console.log(check);
               if (check) {
                 return res.send({
-                  message: "appointment was canceld"
+                  message: "appointment was canceld",
                 });
               } else {
                 return res.send({
-                  message: "Something goes wrong"
+                  message: "Something goes wrong",
                 });
               }
-
             })
-            .catch(() => res.send({
-              error: "doctor not found"
-            }));
+            .catch(() =>
+              res.send({
+                error: "doctor not found",
+              })
+            );
         })
-        .catch(() => res.send({
-          erroe: "patient not found"
-        }))
+        .catch(() =>
+          res.send({
+            erroe: "patient not found",
+          })
+        )
     )
-    .catch(() => res.send({
-      error: "apoointment not found"
-    }));
-
+    .catch(() =>
+      res.send({
+        error: "apoointment not found",
+      })
+    );
 };
 
 exports.rateDoctor = (req, res) => {
@@ -337,15 +338,12 @@ exports.rateDoctor = (req, res) => {
     })
     .catch(() => res.send({ error: "Doctor Not Found" }));
 }
-
-
 exports.updateRating = (req, res) => {
   Doctor.findOne({ _id: req.body.doctorId })
     .then(doctor => {
       doctor.ratings.map((rate, index) => {
         if (req.body.patientId == rate.patientId) {
           doctor.ratings.splice(index, 1);
-          console.log(true);
           const rating = {
             patientId: req.body.patientId,
             rating: req.body.rating

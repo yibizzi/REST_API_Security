@@ -48,30 +48,22 @@ exports.login = (req, res, next) => {
     })
     .then((doctor) => {
       if (!doctor) {
-        return res.status(401).json({
-          error: "Utilisateur non trouvé"
-        });
+        return res.status(401).json({ error: "Doctor not found!" });
       }
       bcrypt
         .compare(req.body.password, doctor.password)
         .then((valid) => {
           if (!valid) {
-            return res.status(401).json({
-              error: "Mot de passe incorrect"
-            });
+            return res.status(401).json({ error: "Worng password" });
           }
-
           res.status(200).json({
+           
             doctorId: doctor._id,
             token: jwt.sign({
               doctorId: doctor._id
             }, "RANDOM_TOKEN_SECRET", {
               expiresIn: "24h",
             }),
-          });
-
-          res.cookie("c", token, {
-            expire: new Date() + 9999,
           });
         })
         .catch((error) => res.status(500).json({
@@ -82,7 +74,6 @@ exports.login = (req, res, next) => {
       error
     }));
 };
-
 
 exports.forgetPassword = function (req, res) {
   async.waterfall(
@@ -244,18 +235,13 @@ exports.updateDoctorInfo = (req, res) => {
     }));
 };
 
+
 exports.confirmAppointment = (req, res) => {
-  Appointment.findOne({
-      _id: req.body.appointmentId
-    })
+  Appointment.findOne({ _id: req.body.appointmentId })
     .then(() => {
-      Doctor.findOne({
-          _id: req.params.doctorId
-        })
+      Doctor.findOne({ _id: req.params.doctorId })
         .then((doctor) => {
-          Patient.findOne({
-              _id: req.body.patientId
-            })
+          Patient.findOne({ _id: req.body.patientId })
             .then((patient) => {
               const requestDoctor = doctor.recievedRequests;
               const requestPatient = patient.sendRequest;
@@ -270,30 +256,19 @@ exports.confirmAppointment = (req, res) => {
                 doctor.appointments.push(req.body.appointmentId);
                 doctor.save();
                 patient.save();
-                return res.json({
-                  message: "Appointment was accepted"
-                });
+                return res.json({ message: "Appointment was accepted" });
               }
               console.log(req.body.isConfirmed);
               patient.save();
               doctor.save();
-              return res.json({
-                message: "Appointment was refused"
-              });
+              return res.json({ message: "Appointment was refused" });
             })
-            .catch(() => res.json({
-              error: "Patient Not Found"
-            }));
+            .catch(() => res.json({ error: "Patient Not Found" }));
         })
-        .catch(() => res.json({
-          error: "Doctor Not Found"
-        }));
+        .catch(() => res.json({ error: "Doctor Not Found" }));
     })
-    .catch(() => res.json({
-      error: "AppointmentId is not valid"
-    }));
+    .catch(() => res.json({ error: "AppointmentId is not valid" }));
 };
-
 
 exports.deleteDoctor = (req, res) => {
   Doctor.deleteOne({
