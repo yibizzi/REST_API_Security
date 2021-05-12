@@ -47,8 +47,8 @@ exports.signup = (req, res, next) => {
 
 exports.login = (req, res, next) => {
   Patient.findOne({
-      email: req.body.email
-    })
+    email: req.body.email
+  })
     .then((patient) => {
       if (!patient) {
         return res.status(401).json({
@@ -222,8 +222,8 @@ exports.getPatients = (req, res) => {
 
 exports.getPatientById = (req, res) => {
   Patient.findById({
-      _id: req.params.patientId
-    })
+    _id: req.params.patientId
+  })
     .then((patient) => res.status(202).json(patient))
     .catch((err) => res.status(404).json({
       error: "Patient Not Found"
@@ -285,43 +285,80 @@ const cancelAppointmentDoctor = (doctor, req, res) => {
 
 exports.cancelAppointment = (req, res) => {
   Appointment.findOne({
-      _id: req.body.appointmentId
-    })
+    _id: req.body.appointmentId
+  })
     .then(
       Patient.findOne({
         _id: req.params.patientId
       })
-      .then((patient) => {
-        Doctor.findOne({
+        .then((patient) => {
+          Doctor.findOne({
             _id: req.body.doctorId
           })
-          .then((doctor) => {
-            const check = cancelAppointmentDoctor(doctor, req, res) && cancelAppointmentPatient(patient, req, res);
-            console.log(check);
-            if (check) {
-              return res.send({
-                message: "appointment was canceld"
-              });
-            } else {
-              return res.send({
-                message: "Something goes wrong"
-              });
-            }
+            .then((doctor) => {
+              const check = cancelAppointmentDoctor(doctor, req, res) && cancelAppointmentPatient(patient, req, res);
+              console.log(check);
+              if (check) {
+                return res.send({
+                  message: "appointment was canceld"
+                });
+              } else {
+                return res.send({
+                  message: "Something goes wrong"
+                });
+              }
 
-          })
-          .catch(() => res.send({
-            error: "doctor not found"
-          }));
-      })
-      .catch(() => res.send({
-        erroe: "patient not found"
-      }))
+            })
+            .catch(() => res.send({
+              error: "doctor not found"
+            }));
+        })
+        .catch(() => res.send({
+          erroe: "patient not found"
+        }))
     )
     .catch(() => res.send({
       error: "apoointment not found"
     }));
 
 };
+
+exports.rateDoctor = (req, res) => {
+  Doctor.findOne({ _id: req.body.doctorId })
+    .then(doctor => {
+      const rating = {
+        patientId: req.body.patientId,
+        rating: req.body.rating
+      }
+      doctor.ratings.push(rating);
+      doctor.save()
+        .then(() => res.send({ message: "your rating has been stored successfully" }))
+        .catch(() => res.send({ error: "rating not saved" }));
+    })
+    .catch(() => res.send({ error: "Doctor Not Found" }));
+}
+
+
+exports.updateRating = (req, res) => {
+  Doctor.findOne({ _id: req.body.doctorId })
+    .then(doctor => {
+      doctor.ratings.map((rate, index) => {
+        if (req.body.patientId == rate.patientId) {
+          doctor.ratings.splice(index, 1);
+          console.log(true);
+          const rating = {
+            patientId: req.body.patientId,
+            rating: req.body.rating
+          }
+          doctor.ratings.push(rating);
+        }
+      });
+      doctor.save()
+        .then(() => res.send({ message: "your rating has been updated successfully" }))
+        .catch(() => res.send({ error: "rating not updated" }));
+    })
+    .catch(() => res.send({ error: "Doctor Not Found" }));
+}
 
 exports.deletePatient = (req, res) => {
   Patient.updateOne({
