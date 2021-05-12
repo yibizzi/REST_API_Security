@@ -1,12 +1,18 @@
 const Patient = require("../models/Patient");
 const Doctor = require("../models/Doctor");
 const Appointment = require("../models/Appointment");
-const { RESET_PASSWORD_URL } = require("../config/config");
-const { smtpTransport, email } = require("../config/email");
+const {
+  RESET_PASSWORD_URL
+} = require("../config/config");
+const {
+  smtpTransport,
+  email
+} = require("../config/email");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 var async = require("async");
 var crypto = require("crypto");
+
 const { stringify } = require("querystring");
 
 exports.signup = (req, res, next) => {
@@ -26,26 +32,23 @@ exports.signup = (req, res, next) => {
       });
       patient
         .save()
-        .then(() =>
-          res.status(201).json({
-            message: "Patient created!",
-          })
-        )
-        .catch((error) =>
-          res.status(400).json({
-            error,
-          })
-        );
+        .then(() => res.status(201).json({
+          message: "Patient created!"
+        }))
+        .catch((error) => res.status(400).json({
+          error
+        }));
     })
-    .catch((error) =>
-      res.status(500).json({
-        error,
-      })
-    );
+    .catch((error) => res.status(500).json({
+      error
+    }));
+
 };
 
 exports.login = (req, res, next) => {
-  Patient.findOne({ email: req.body.email })
+  Patient.findOne({
+    email: req.body.email
+  })
     .then((patient) => {
       if (!patient) {
         return res.status(401).json({ error: "Patient not found!" });
@@ -58,14 +61,20 @@ exports.login = (req, res, next) => {
           }
           res.status(200).json({
             patientId: patient._id,
-            token: jwt.sign({ patientId: patient._id }, "RANDOM_TOKEN_SECRET", {
+            token: jwt.sign({
+              patientId: patient._id
+            }, "RANDOM_TOKEN_SECRET", {
               expiresIn: "24h",
             }),
           });
         })
-        .catch((error) => res.status(500).json({ error }));
+        .catch((error) => res.status(500).json({
+          error
+        }));
     })
-    .catch((error) => res.status(500).json({ error }));
+    .catch((error) => res.status(500).json({
+      error
+    }));
 };
 
 exports.forgetPassword = function (req, res) {
@@ -90,19 +99,16 @@ exports.forgetPassword = function (req, res) {
         });
       },
       function (patient, token, done) {
-        Patient.findByIdAndUpdate(
-          {
-            _id: patient._id,
-          },
-          {
-            reset_password_token: token,
-            reset_password_expires: Date.now() + 86400000,
-          },
-          {
-            upsert: true,
-            new: true,
-          }
-        ).exec(function (err, new_patient) {
+        Patient.findByIdAndUpdate({
+          _id: patient._id
+        }, {
+          reset_password_token: token,
+          reset_password_expires: Date.now() + 86400000,
+        }, {
+          upsert: true,
+          new: true
+        }).exec(function (err, new_patient) {
+
           done(err, token, new_patient);
         });
       },
@@ -165,7 +171,7 @@ exports.resetPassword = function (req, res, next) {
             smtpTransport.sendMail(data, function (err) {
               if (!err) {
                 return res.json({
-                  message: "Password reset",
+                  message: "Password reset"
                 });
               } else {
                 return done(err);
@@ -320,49 +326,41 @@ exports.cancelAppointment = (req, res) => {
 
 exports.rateDoctor = (req, res) => {
   Doctor.findOne({ _id: req.body.doctorId })
-    .then((doctor) => {
+    .then(doctor => {
       const rating = {
         patientId: req.body.patientId,
-        rating: req.body.rating,
-      };
+        rating: req.body.rating
+      }
       doctor.ratings.push(rating);
-      doctor
-        .save()
-        .then(() =>
-          res.send({ message: "your rating has been stored successfully" })
-        )
+      doctor.save()
+        .then(() => res.send({ message: "your rating has been stored successfully" }))
         .catch(() => res.send({ error: "rating not saved" }));
     })
     .catch(() => res.send({ error: "Doctor Not Found" }));
-};
-
+}
 exports.updateRating = (req, res) => {
   Doctor.findOne({ _id: req.body.doctorId })
-    .then((doctor) => {
+    .then(doctor => {
       doctor.ratings.map((rate, index) => {
         if (req.body.patientId == rate.patientId) {
           doctor.ratings.splice(index, 1);
-          console.log(true);
           const rating = {
             patientId: req.body.patientId,
-            rating: req.body.rating,
-          };
+            rating: req.body.rating
+          }
           doctor.ratings.push(rating);
         }
       });
-      doctor
-        .save()
-        .then(() =>
-          res.send({ message: "your rating has been updated successfully" })
-        )
+      doctor.save()
+        .then(() => res.send({ message: "your rating has been updated successfully" }))
         .catch(() => res.send({ error: "rating not updated" }));
     })
     .catch(() => res.send({ error: "Doctor Not Found" }));
-};
+}
 
 exports.deletePatient = (req, res) => {
   Patient.updateOne({
-    _id: req.params.patientId,
+    _id: req.params.patientId
   }).then(function (err) {
     if (!err) {
       res.status(200).send("patient deleted successfully");

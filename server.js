@@ -21,15 +21,16 @@ app.use((req, res, next) => {
 });
 
 //Body limits :
-app.use(bodyParser.json({limit:"30mb", extended: true}));
-app.use(bodyParser.urlencoded({limit:"30mb", extended: true}));
+app.use(bodyParser.json({ limit: "30mb", extended: true }));
+app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 
 
-// use routes
+//Use routes :
 app.use("/appointments", appointmentRoutes);
 app.use("/doctors", doctorRoutes);
 app.use("/patients", patientRoutes);
 app.use("/admins",adminRoutes)
+
 
 
 mongoose

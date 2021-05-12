@@ -1,7 +1,5 @@
 const jwt = require("jsonwebtoken");
 
-//Rah token kayna f headers.Cookie 3la chkl string
-
 exports.doctorAuth = (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
@@ -57,7 +55,7 @@ exports.auth = (req, res, next) => {
     patientAuth(req, res, next);
   } else {
     res.json({
-      error: "Please assign one of these roles ( admin, patient, doctor",
+      error: "Please assign one of these roles ( admin, patient, doctor )"
     });
   }
 };
