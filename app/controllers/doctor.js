@@ -35,36 +35,25 @@ exports.login = (req, res, next) => {
   Doctor.findOne({ email: req.body.email })
     .then((doctor) => {
       if (!doctor) {
-        return res.status(401).json({ error: "Utilisateur non trouvé" });
+        return res.status(401).json({ error: "Doctor not found!" });
       }
       bcrypt
         .compare(req.body.password, doctor.password)
         .then((valid) => {
           if (!valid) {
-            return res.status(401).json({ error: "Mot de passe incorrect" });
+            return res.status(401).json({ error: "Worng password" });
           }
-
           res.status(200).json({
+            
             doctorId: doctor._id,
             token: jwt.sign({ doctorId: doctor._id }, "RANDOM_TOKEN_SECRET", {
               expiresIn: "24h",
             }),
           });
-
-          res.cookie("c", token, {
-            expire: new Date() + 9999,
-          });
         })
         .catch((error) => res.status(500).json({ error }));
     })
     .catch((error) => res.status(500).json({ error }));
-};
-
-exports.logout = (req, res) => {
-  res.clearCookie("c");
-  return res.status("200").json({
-    message: "Loged out successfully",
-  });
 };
 
 exports.forgetPassword = function (req, res) {
@@ -211,69 +200,39 @@ exports.updateDoctorInfo = (req, res) => {
     .catch((error) => res.status(404).json({ error: "Doctor not found" }));
 };
 
-const confirmAppointmentForDoctor = (req, res) => {
-  Doctor.findOne({ _id: req.params.doctorId })
-    .then((doctor) => {
-      const requests = doctor.recievedRequests;
-      const appointments = doctor.appointments;
-      const index = requests.indexOf(req.body.appointmentId);
-      requests.splice(index, 1);
-      if (req.body.isConfirmed) {
-        appointments.push(req.body.appointmentId);
-        res.status(200).send("appointment was accepted");
-      } else {
-        res.status(200).send("appointment was refused");
-      }
-      doctor.save();
-    })
-    .catch((error) => res.status(404).json({ error: "Doctor not found" }));
-};
-
-const confirmAppointmentForPatient = (req, res) => {
-  Patient.findOne({ _id: req.body.patientId })
-    .then((patient) => {
-      const requests = patient.sendRequest;
-      const appointments = patient.appointments;
-      const index = requests.indexOf(req.body.appointmentId);
-      requests.splice(index, 1);
-      if(req.body.isConfirmed){
-        appointments.push(req.body.appointmentId);
-        res.status(202).json({message:"Appointment was accepted"});
-      }else{
-        res.status(202).json({message: "Appointment was refused"});
-      }
-      patient.save();
-    })
-    .catch((error) => res.status(404).json({ error: "Patient not found" }));
-};
 
 exports.confirmAppointment = (req, res) => {
-  console.log(req.body);
-  Appointment.findOne({_id: req.body.appointmentId})
-  .then(() => {
-    Doctor.findOne({_id: req.params.doctorId})
-    .then(doctor => {
-      Patient.findOne({_id: req.body.patientId})
-      .then(patient => {
-        const requestDoctor = doctor.recievedRequests;
-        const requestPatient = patient.sendRequest;
-        const indexPatient = requestPatient.indexOf(req.body.appointmentId);
-        const indexDoctor = requestDoctor.indexOf(req.body.appointmentId);
-        requestDoctor.splice(indexDoctor, 1);
-        requestPatient.splice(indexPatient, 1);
-        if(req.body.isConfirmed){
-          requestPatient.push(req.body.appointmentId);
-          requestDoctor.push(req.body.appointmentId);
-          res.json({message: "Appointment was accepted"});
-        }else{
-          res.json({message: "Appointment was refused"});
-        }
-        patient.save();
-      }).catch(res.json({error: "Patient Not Found"}));
-      doctor.save();
-    }).catch(res.json({error: "Doctor Not Found"}));
-  }).catch(res.json({error: "AppointmentId is not valid"}));
-  
+  Appointment.findOne({ _id: req.body.appointmentId })
+    .then(() => {
+      Doctor.findOne({ _id: req.params.doctorId })
+        .then((doctor) => {
+          Patient.findOne({ _id: req.body.patientId })
+            .then((patient) => {
+              const requestDoctor = doctor.recievedRequests;
+              const requestPatient = patient.sendRequest;
+              const indexPatient = requestPatient.indexOf(
+                req.body.appointmentId
+              );
+              const indexDoctor = requestDoctor.indexOf(req.body.appointmentId);
+              doctor.recievedRequests.splice(indexDoctor, 1);
+              patient.sendRequest.splice(indexPatient, 1);
+              if (req.body.isConfirmed == "true") {
+                patient.appointments.push(req.body.appointmentId);
+                doctor.appointments.push(req.body.appointmentId);
+                doctor.save();
+                patient.save();
+                return res.json({ message: "Appointment was accepted" });
+              }
+              console.log(req.body.isConfirmed);
+              patient.save();
+              doctor.save();
+              return res.json({ message: "Appointment was refused" });
+            })
+            .catch(() => res.json({ error: "Patient Not Found" }));
+        })
+        .catch(() => res.json({ error: "Doctor Not Found" }));
+    })
+    .catch(() => res.json({ error: "AppointmentId is not valid" }));
 };
 
 exports.deleteDoctor = (req, res) => {
