@@ -13,8 +13,11 @@ router.put('/auth/reset-password',patientController.resetPassword);
 //Other Routes
 router.get("/", patientController.getPatients);
 router.get("/:patientId", patientController.getPatientById);
+router.post("/:patientId/rate-doctor", patientController.rateDoctor);
+router.put("/:patientId/rate-doctor", patientController.updateRating);
 router.put("/:patientId/cancel-appointment", patientController.cancelAppointment);
 router.put("/:patientId", patientController.updatePatientInfo);
 router.delete("/:patientId", patientController.deletePatient);
+
 
 module.exports = router;
