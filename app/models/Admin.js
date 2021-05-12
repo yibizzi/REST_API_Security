@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 
 const adminSchema = mongoose.Schema({
+    profileImg: String, 
     fullName:{
         firstName: String,
         lastName: String,

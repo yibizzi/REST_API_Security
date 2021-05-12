@@ -9,12 +9,12 @@ const validateEmail = function (email) {
 
 //Rating object
 const rating = {
-  patienfId: Number,
+  patientId: mongoose.Types.ObjectId,
   rating: Number,
 };
 
 const doctorSchema = mongoose.Schema({
-  avatar: String,
+  profileImg: String,
   fullName: {
     firstName: {
       type: String,

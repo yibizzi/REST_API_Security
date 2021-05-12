@@ -8,7 +8,7 @@ const validateEmail = function (email) {
 };
 
 const patientSchema = mongoose.Schema({
-  avatar: String,
+  ProfileImg: String,
   fullName: {
     firstName: {
       type: String,
