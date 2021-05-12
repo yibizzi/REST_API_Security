@@ -8,7 +8,7 @@ router.post('/auth/signup',adminController.signup);
 router.post('/auth/login', adminController.login);
 router.post('/auth/forget-password',adminController.forgetPassword);
 router.put('/auth/reset-password',adminController.resetPassword);
-router.get('/auth/logout', adminController.logout);
+
 
 
 //Other routes:
