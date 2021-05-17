@@ -13,6 +13,7 @@ const {
 var async = require("async");
 var crypto = require("crypto");
 
+
 exports.signup = (req, res, next) => {
   bcrypt
     .hash(req.body.password, 10)
@@ -44,8 +45,8 @@ exports.signup = (req, res, next) => {
 
 exports.login = (req, res, next) => {
   Doctor.findOne({
-      email: req.body.email
-    })
+    email: req.body.email
+  })
     .then((doctor) => {
       if (!doctor) {
         return res.status(401).json({ error: "Doctor not found!" });
@@ -57,10 +58,11 @@ exports.login = (req, res, next) => {
             return res.status(401).json({ error: "Worng password" });
           }
           res.status(200).json({
-           
+
             doctorId: doctor._id,
             token: jwt.sign({
-              doctorId: doctor._id
+              doctorId: doctor._id,
+              role: "doctor"
             }, "RANDOM_TOKEN_SECRET", {
               expiresIn: "24h",
             }),
@@ -196,13 +198,33 @@ exports.getDoctors = (req, res) => {
   const query = req.query;
   if (Object.entries(query).length == 0) {
     Doctor.find({})
-      .then((doctors) => res.json(doctors))
+      .then(doctors => {
+        let secureDoctor = [];
+        doctors.map(doctor => {
+          doctor = doctor.toObject();
+          delete doctor.password;
+          delete doctor.appointments;
+          delete doctor.recievedRequests;
+          secureDoctor.push(doctor);
+        });
+        res.status(200).json(secureDoctor);
+      })
       .catch((err) => res.status(404).json({
         error: err
       }));
   } else {
     Doctor.find(query)
-      .then((doctor) => res.status(200).json(doctor))
+      .then(doctors => {
+        let secureDoctor = [];
+        doctors.map(doctor => {
+          doctor = doctor.toObject();
+          delete doctor.password;
+          delete doctor.appointments;
+          delete doctor.recievedRequests;
+          secureDoctor.push(doctor);
+        });
+        res.status(200).json(secureDoctor);
+      })
       .catch((error) => res.status(404).json({
         error: "Doctor not found"
       }));
@@ -211,9 +233,15 @@ exports.getDoctors = (req, res) => {
 
 exports.getDoctorById = (req, res) => {
   Doctor.findById({
-      _id: req.params.doctorId
+    _id: req.params.doctorId
+  })
+    .then((doctor) => {
+      doctor = doctor.toObject();
+      delete doctor.password;
+      delete doctor.appointments;
+      delete doctor.recievedRequests;
+      res.status(200).json(doctor)
     })
-    .then((doctor) => res.status(200).json(doctor))
     .catch((error) => res.status(404).json({
       error: "Doctor not found"
     }));
@@ -221,13 +249,13 @@ exports.getDoctorById = (req, res) => {
 
 exports.updateDoctorInfo = (req, res) => {
   Doctor.updateOne({
-      _id: req.params.doctorId
-    }, req.body)
+    _id: req.params.doctorId
+  }, req.body)
     .then(function (err) {
       if (err.nModified === 1) {
-        res.status(200).send("Doctor updated successfully");
+        res.status(200).json({ message: "Doctor updated successfully" });
       } else {
-        res.status(404).send(err);
+        res.status(404).json(err);
       }
     })
     .catch((error) => res.status(404).json({
@@ -238,10 +266,10 @@ exports.updateDoctorInfo = (req, res) => {
 
 exports.confirmAppointment = (req, res) => {
   Appointment.findOne({ _id: req.body.appointmentId })
-    .then(() => {
-      Doctor.findOne({ _id: req.params.doctorId })
+    .then(appointment => {
+      Doctor.findOne({ _id: appointment.doctorId })
         .then((doctor) => {
-          Patient.findOne({ _id: req.body.patientId })
+          Patient.findOne({ _id: appointment.patientId })
             .then((patient) => {
               const requestDoctor = doctor.recievedRequests;
               const requestPatient = patient.sendRequest;
@@ -268,14 +296,33 @@ exports.confirmAppointment = (req, res) => {
         .catch(() => res.json({ error: "Doctor Not Found" }));
     })
     .catch(() => res.json({ error: "AppointmentId is not valid" }));
+
+
+
 };
+
+exports.doctorAppointments = (req, res) => {
+  Doctor.findOne({_id: req.body.doctorId})
+  .then(doctor => res.status(200).send(doctor.appointments))
+  .catch(err => res.status(404).json({error: "Doctor Not Found"}));
+}
+
+exports.doctorRecievedRequests = (req, res) => {
+  Doctor.findOne({_id: req.body.doctorId})
+  .then(doctor => res.status(200).send(doctor.recievedRequests))
+  .catch(err => res.status(404).json({error: "Doctor Not Found"}));
+}
+
+exports.doctorRating = (req, res) => {
+  Doctor.findOne({_id: req.body.doctorId})
+  .then(doctor => res.status(200).send(doctor.ratings))
+  .catch(err => res.status(404).json({error: "Doctor Not Found"}));
+}
 
 exports.deleteDoctor = (req, res) => {
   Doctor.deleteOne({
     _id: req.params.doctorId
-  }).then((err) => {
-    if (!err) {
-      res.status(200).send("doctor delted successfully");
-    }
-  });
+  })
+    .then(() => res.json({ message: "Doctor deleted successfully" }))
+    .catch(err => res.json(err));
 };
