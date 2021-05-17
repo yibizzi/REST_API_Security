@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const doctorController = require("../controllers/doctor")
+const doctorController = require("../controllers/doctor");
+const appointmentController = require("../controllers/appointment");
 
 const {auth} = require('../middlewares/auth');
 
@@ -14,7 +15,11 @@ router.put('/auth/reset-password', doctorController.resetPassword);
 router.get("/", doctorController.getDoctors);
 router.get("/:doctorId" , doctorController.getDoctorById);
 router.put("/:doctorId" , doctorController.updateDoctorInfo);
+router.get("/:doctorId/rating", doctorController.doctorRating);
+router.get("/:doctorId/appointments", doctorController.doctorAppointments);
+router.get("/:doctorId/recieved-requests", doctorController.doctorRecievedRequests);
 router.put("/:doctorId/confirm-appointment" , doctorController.confirmAppointment);
+router.put("/:doctorId/cancel-appointment", appointmentController.cancelAppointment);
 router.delete("/:doctorId" , doctorController.deleteDoctor);
 
 module.exports = router;

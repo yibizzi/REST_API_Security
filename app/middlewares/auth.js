@@ -1,5 +1,14 @@
 const jwt = require("jsonwebtoken");
 
+
+function getRole (req) {
+  const token = req.headers.authorization.split(" ")[1];
+  let jwtData = token.split('.')[1];
+  let decodedJwtJsonData = window.atob(jwtData);
+  let decodedJwtData = JSON.parse(decodedJwtJsonData);
+  return decodedJwtData.role;
+}
+
 exports.doctorAuth = (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
@@ -46,7 +55,7 @@ exports.adminAuth = (req, res, next) => {
 };
 
 exports.auth = (req, res, next) => {
-  const role = req.body.role;
+  const role = getRole(req);
   if (role == "admin") {
     adminAuth(req, res, next);
   } else if (role == "doctor") {

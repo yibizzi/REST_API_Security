@@ -10,7 +10,6 @@ router.post('/auth/forget-password',adminController.forgetPassword);
 router.put('/auth/reset-password',adminController.resetPassword);
 
 
-
 //Other routes:
 router.get("/", adminController.getAdmins);
 router.get("/:adminId", adminController.getAdminById);
