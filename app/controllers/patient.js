@@ -1,19 +1,14 @@
 const Patient = require("../models/Patient");
 const Doctor = require("../models/Doctor");
 const Appointment = require("../models/Appointment");
-const {
-  RESET_PASSWORD_URL
-} = require("../config/config");
-const {
-  smtpTransport,
-  email
-} = require("../config/email");
+const { RESET_PASSWORD_URL } = require("../config/config");
+const { smtpTransport, email } = require("../config/email");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 var async = require("async");
 var crypto = require("crypto");
 
-const { stringify } = require("querystring");
+
 
 exports.signup = (req, res, next) => {
   bcrypt
@@ -62,7 +57,8 @@ exports.login = (req, res, next) => {
           res.status(200).json({
             patientId: patient._id,
             token: jwt.sign({
-              patientId: patient._id
+              patientId: patient._id,
+              role: "patient"
             }, "RANDOM_TOKEN_SECRET", {
               expiresIn: "24h",
             }),
@@ -87,7 +83,7 @@ exports.forgetPassword = function (req, res) {
           if (patient) {
             done(err, patient);
           } else {
-            done("Patient Not Found.");
+            done({ error: "Patient Not Found." });
           }
         });
       },
@@ -136,9 +132,7 @@ exports.forgetPassword = function (req, res) {
       },
     ],
     function (err) {
-      return res.status(422).json({
-        message: err,
-      });
+      return res.status(422).json(err);
     }
   );
 };
@@ -146,57 +140,68 @@ exports.forgetPassword = function (req, res) {
 exports.resetPassword = function (req, res, next) {
   Patient.findOne({
     reset_password_token: req.query.token,
-  }).exec(function (err, patient) {
-    if (!err && patient) {
-      if (req.body.newPassword === req.body.verifyPassword) {
-        patient.password = bcrypt.hashSync(req.body.newPassword, 10);
-        patient.reset_password_token = undefined;
-        patient.reset_password_expires = undefined;
-        patient.save(function (err) {
-          if (err) {
-            return res.status(422).send({
-              message: err,
-            });
-          } else {
-            var data = {
-              to: patient.email,
-              from: email,
-              template: "reset_password_email",
-              subject: "Password Reset Confirmation",
-              context: {
-                name: patient.fullName.split(" ")[0],
-              },
-            };
+  })
+    .exec(function (err, patient) {
+      if (!err && patient) {
+        if (req.body.newPassword === req.body.verifyPassword) {
+          patient.password = bcrypt.hashSync(req.body.newPassword, 10);
+          patient.reset_password_token = undefined;
+          patient.reset_password_expires = undefined;
+          patient.save(function (err) {
+            if (err) {
+              return res.status(422).send({
+                message: err,
+              });
+            } else {
+              var data = {
+                to: patient.email,
+                from: email,
+                template: "reset_password_email",
+                subject: "Password Reset Confirmation",
+                context: {
+                  name: patient.fullName.split(" ")[0],
+                },
+              };
 
-            smtpTransport.sendMail(data, function (err) {
-              if (!err) {
-                return res.json({
-                  message: "Password reset"
-                });
-              } else {
-                return done(err);
-              }
-            });
-          }
-        });
+              smtpTransport.sendMail(data, function (err) {
+                if (!err) {
+                  return res.json({
+                    message: "Password reset"
+                  });
+                } else {
+                  return done(err);
+                }
+              });
+            }
+          });
+        } else {
+          return res.status(422).send({
+            error: "Passwords do not match",
+          });
+        }
       } else {
-        return res.status(422).send({
-          message: "Passwords do not match",
+        return res.status(400).send({
+          error: "Password reset token is invalid or has expired.",
         });
       }
-    } else {
-      return res.status(400).send({
-        message: "Password reset token is invalid or has expired.",
-      });
-    }
-  });
+    });
 };
 
 exports.getPatients = (req, res) => {
   const query = req.query;
   if (Object.entries(query).length == 0) {
     Patient.find({})
-      .then((patient) => res.json(patient))
+      .then(patients => {
+        securePatients = [];
+        patients.map(patient => {
+          patient = patient.toObject();
+          delete patient.password;
+          delete patient.appointments;
+          delete patient.sendRequest;
+          securePatients.push(patient);
+        });
+        res.status(200).json(securePatients);
+      })
       .catch((err) =>
         res.status(404).send({
           error: "Patient Not Found",
@@ -204,7 +209,17 @@ exports.getPatients = (req, res) => {
       );
   } else {
     Patient.find(query)
-      .then((patient) => res.json(patient))
+      .then(patients => {
+        securePatients = [];
+        patients.map(patient => {
+          patient = patient.toObject();
+          delete patient.password;
+          delete patient.appointments;
+          delete patient.sendRequest;
+          securePatients.push(patient);
+        });
+        res.status(200).json(securePatients);
+      })
       .catch((err) =>
         res.status(404).send({
           error: "Patient Not Found",
@@ -217,7 +232,13 @@ exports.getPatientById = (req, res) => {
   Patient.findById({
     _id: req.params.patientId,
   })
-    .then((patient) => res.status(202).json(patient))
+    .then(patient => {
+      patient = patient.toObject();
+      delete patient.password;
+      delete patient.appointments;
+      delete patient.sendRequest;
+      res.status(202).json(patient)
+    })
     .catch((err) =>
       res.status(404).json({
         error: "Patient Not Found",
@@ -231,98 +252,12 @@ exports.updatePatientInfo = (req, res) => {
       _id: req.params.patientId,
     },
     req.body
-  ).then(function (err) {
-    if (err.nModified === 1) {
-      res.status(200).send("Patient updated successfully");
-    } else {
-      res.status(404).send(err);
-    }
-  });
+  )
+    .then(() => res.status(200).send({ message: "Patient updated successfully" }))
+    .catch(err => res.status(404).json({error: "Patient Not Founde"}));
 };
 
-const cancelAppointmentPatient = (patient, req, res) => {
-  const requests = patient.sendRequest;
-  const appointments = patient.appointments;
-  const indexReq = requests.indexOf(req.body.appointmentId);
-  const indexApp = appointments.indexOf(req.body.appointmentId);
-  var stateReq = false;
-  var stateApp = false;
-  if (indexReq !== -1) {
-    patient.sendRequest.splice(indexReq, 1);
-    stateReq = true;
-    patient.save();
-  } else if (indexApp !== -1) {
-    patient.appointments.splice(indexApp, 1);
-    stateApp = true;
-    patient.save();
-  }
-  return stateApp || stateReq;
-};
 
-const cancelAppointmentDoctor = (doctor, req, res) => {
-  const requests = doctor.recievedRequests;
-  const appointments = doctor.appointments;
-  const indexReq = requests.indexOf(req.body.appointmentId);
-  const indexApp = appointments.indexOf(req.body.appointmentId);
-  var stateReq = false;
-  var stateApp = false;
-  if (indexReq !== -1) {
-    doctor.recievedRequests.splice(indexReq, 1);
-    stateReq = true;
-    doctor.save();
-  } else if (indexApp !== -1) {
-    doctor.appointments.splice(indexApp, 1);
-    stateApp = true;
-    doctor.save();
-  }
-  return stateApp || stateReq;
-};
-
-exports.cancelAppointment = (req, res) => {
-  Appointment.findOne({
-    _id: req.body.appointmentId,
-  })
-    .then(
-      Patient.findOne({
-        _id: req.params.patientId,
-      })
-        .then((patient) => {
-          Doctor.findOne({
-            _id: req.body.doctorId,
-          })
-            .then((doctor) => {
-              const check =
-                cancelAppointmentDoctor(doctor, req, res) &&
-                cancelAppointmentPatient(patient, req, res);
-              console.log(check);
-              if (check) {
-                return res.send({
-                  message: "appointment was canceld",
-                });
-              } else {
-                return res.send({
-                  message: "Something goes wrong",
-                });
-              }
-            })
-            .catch(() =>
-              res.send({
-                error: "doctor not found",
-              })
-            );
-        })
-        .catch(() =>
-          res.send({
-            erroe: "patient not found",
-          })
-        )
-    )
-    .catch(() =>
-      res.send({
-        error: "apoointment not found",
-      })
-    );
-};
 
 exports.rateDoctor = (req, res) => {
   Doctor.findOne({ _id: req.body.doctorId })
@@ -333,11 +268,12 @@ exports.rateDoctor = (req, res) => {
       }
       doctor.ratings.push(rating);
       doctor.save()
-        .then(() => res.send({ message: "your rating has been stored successfully" }))
-        .catch(() => res.send({ error: "rating not saved" }));
+        .then(() => res.send({ message: "Your rating has been saved successfully" }))
+        .catch(() => res.send({ error: "Rating not saved" }));
     })
     .catch(() => res.send({ error: "Doctor Not Found" }));
 }
+
 exports.updateRating = (req, res) => {
   Doctor.findOne({ _id: req.body.doctorId })
     .then(doctor => {
@@ -352,20 +288,28 @@ exports.updateRating = (req, res) => {
         }
       });
       doctor.save()
-        .then(() => res.send({ message: "your rating has been updated successfully" }))
-        .catch(() => res.send({ error: "rating not updated" }));
+        .then(() => res.send({ message: "Your rating has been updated successfully" }))
+        .catch(() => res.send({ error: "Rating not updated" }));
     })
     .catch(() => res.send({ error: "Doctor Not Found" }));
 }
 
+exports.patientAppointments = (req, res) => {
+  Patient.findOne({_id: req.body.patientId})
+  .then(patient => res.status(200).send(patient.appointments))
+  .catch(err => res.status(404).json({error: 'Patient Not Found'}));
+}
+
+exports.patientSendRequests = (req, res) => {
+  Patient.findOne({_id: req.body.patientId})
+  .then(patient => res.status(200).send(patient.sendRequest))
+  .catch(err => res.status(404).json({error: 'Patient Not Found'}));
+}
+
 exports.deletePatient = (req, res) => {
-  Patient.updateOne({
+  Patient.deleteOne({
     _id: req.params.patientId
-  }).then(function (err) {
-    if (!err) {
-      res.status(200).send("patient deleted successfully");
-    } else {
-      res.status(204).send(err);
-    }
-  });
+  })
+    .then(() => res.json({ message: "Patient deleted successfully" }))
+    .catch((err) => res.json(err))
 };
