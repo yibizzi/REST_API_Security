@@ -52,7 +52,7 @@ exports.login = (req, res, next) => {
         .compare(req.body.password, patient.password)
         .then((valid) => {
           if (!valid) {
-            return res.status(401).json({ error: "Worng password" });
+            return res.status(401).json({ error: "Wrong password" });
           }
           res.status(200).json({
             patientId: patient._id,
@@ -122,7 +122,7 @@ exports.forgetPassword = function (req, res) {
 
         smtpTransport.sendMail(data, function (err) {
           if (!err) {
-            return res.json({
+            return res.status(201).json({
               message: "Kindly check your email for further instructions",
             });
           } else {
@@ -165,7 +165,7 @@ exports.resetPassword = function (req, res, next) {
 
               smtpTransport.sendMail(data, function (err) {
                 if (!err) {
-                  return res.json({
+                  return res.status(201).json({
                     message: "Password reset"
                   });
                 } else {
@@ -237,7 +237,7 @@ exports.getPatientById = (req, res) => {
       delete patient.password;
       delete patient.appointments;
       delete patient.sendRequest;
-      res.status(202).json(patient)
+      res.status(200).json(patient)
     })
     .catch((err) =>
       res.status(404).json({
@@ -247,14 +247,9 @@ exports.getPatientById = (req, res) => {
 };
 
 exports.updatePatientInfo = (req, res) => {
-  Patient.updateOne(
-    {
-      _id: req.params.patientId,
-    },
-    req.body
-  )
-    .then(() => res.status(200).send({ message: "Patient updated successfully" }))
-    .catch(err => res.status(404).json({error: "Patient Not Founde"}));
+  Patient.updateOne({ _id: req.params.patientId }, req.body)
+    .then(() => res.status(201).send({ message: "Patient updated successfully" }))
+    .catch(err => res.status(404).json({ error: "Patient Not Founde" }));
 };
 
 
@@ -268,10 +263,10 @@ exports.rateDoctor = (req, res) => {
       }
       doctor.ratings.push(rating);
       doctor.save()
-        .then(() => res.send({ message: "Your rating has been saved successfully" }))
-        .catch(() => res.send({ error: "Rating not saved" }));
+        .then(() => res.status(201).send({ message: "Your rating has been saved successfully" }))
+        .catch(() => res.status(500).send({ error: "Rating not saved" }));
     })
-    .catch(() => res.send({ error: "Doctor Not Found" }));
+    .catch(() => res.status(404).send({ error: "Doctor Not Found" }));
 }
 
 exports.updateRating = (req, res) => {
@@ -288,28 +283,28 @@ exports.updateRating = (req, res) => {
         }
       });
       doctor.save()
-        .then(() => res.send({ message: "Your rating has been updated successfully" }))
-        .catch(() => res.send({ error: "Rating not updated" }));
+        .then(() => res.status(201).send({ message: "Your rating has been updated successfully" }))
+        .catch(() => res.status(503).send({ error: "Rating not updated" }));
     })
-    .catch(() => res.send({ error: "Doctor Not Found" }));
+    .catch(() => res.status(404).send({ error: "Doctor Not Found" }));
 }
 
 exports.patientAppointments = (req, res) => {
-  Patient.findOne({_id: req.body.patientId})
-  .then(patient => res.status(200).send(patient.appointments))
-  .catch(err => res.status(404).json({error: 'Patient Not Found'}));
+  Patient.findOne({ _id: req.body.patientId })
+    .then(patient => res.status(200).send(patient.appointments))
+    .catch(err => res.status(404).json({ error: 'Patient Not Found' }));
 }
 
 exports.patientSendRequests = (req, res) => {
-  Patient.findOne({_id: req.body.patientId})
-  .then(patient => res.status(200).send(patient.sendRequest))
-  .catch(err => res.status(404).json({error: 'Patient Not Found'}));
+  Patient.findOne({ _id: req.body.patientId })
+    .then(patient => res.status(200).send(patient.sendRequest))
+    .catch(err => res.status(404).json({ error: 'Patient Not Found' }));
 }
 
 exports.deletePatient = (req, res) => {
   Patient.deleteOne({
     _id: req.params.patientId
   })
-    .then(() => res.json({ message: "Patient deleted successfully" }))
-    .catch((err) => res.json(err))
+    .then(() => res.status(200).json({ message: "Patient deleted successfully" }))
+    .catch((err) => res.status(404).json(err))
 };
