@@ -5,7 +5,7 @@ const Patient = require("../models/Patient");
 
 exports.getAppointmentbyId = (req, res) => {
     Appointment.findOne({ _id: req.params.appointmentId })
-        .then(appointments => res.status(200).json(appointments))
+        .then(appointment => res.status(200).json(appointment))
         .catch(err => res.status(404).json({ error: "Appointment Not Found" }));
 }
 
@@ -32,8 +32,8 @@ exports.askforAppointment = (req, res) => {
             });
 
             appointment.save()
-            .then(() => res.json({message: "Apppointment created successfully"}))
-            .catch(err => res.json(err));
+            .then(() => res.status(201).json({message: "Apppointment created successfully"}))
+            .catch(err => res.status(500).json(err));
 
             doctor.recievedRequests.push(appointment._id);
             patient.sendRequest.push(appointment._id);
