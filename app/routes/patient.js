@@ -13,16 +13,16 @@ router.put('/auth/reset-password',patientController.resetPassword);
 
 
 //Other Routes
-router.get("/", patientController.getPatients);
-router.get("/:patientId", patientController.getPatientById);
-router.post("/:patientId/rate-doctor", patientController.rateDoctor);
-router.put("/:patientId/rate-doctor", patientController.updateRating);
-router.put("/:patientId/cancel-appointment", appointmentController.cancelAppointment);
-// router.post("/:patientId/payment", paymentController.pay);
-router.get("/:patientId/appointments", patientController.patientAppointments);
-router.get("/:patientId/send-requests", patientController.patientSendRequests);
-router.put("/:patientId", patientController.updatePatientInfo);
-router.delete("/:patientId", patientController.deletePatient);
+router.get("/", auth, patientController.getPatients);
+router.get("/:patientId", auth, patientController.getPatientById);
+router.post("/:patientId/rate-doctor", auth, patientController.rateDoctor);
+router.put("/:patientId/rate-doctor", auth, patientController.updateRating);
+router.put("/:patientId/cancel-appointment",auth, appointmentController.cancelAppointment);
+// router.post("/:patientId/payment", auth, paymentController.pay);
+router.get("/:patientId/appointments",auth, patientController.patientAppointments);
+router.get("/:patientId/send-requests",auth, patientController.patientSendRequests);
+router.put("/:patientId",auth, patientController.updatePatientInfo);
+router.delete("/:patientId",auth, patientController.deletePatient);
 
 
 

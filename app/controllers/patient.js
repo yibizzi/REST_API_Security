@@ -1,6 +1,5 @@
 const Patient = require("../models/Patient");
 const Doctor = require("../models/Doctor");
-const Appointment = require("../models/Appointment");
 const { RESET_PASSWORD_URL } = require("../config/config");
 const { smtpTransport, email } = require("../config/email");
 const bcrypt = require("bcrypt");

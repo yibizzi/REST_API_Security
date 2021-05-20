@@ -2,53 +2,52 @@ const jwt = require("jsonwebtoken");
 
 
 function getRole (req) {
-  const token = req.headers.authorization.split(" ")[1];
-  let jwtData = token.split('.')[1];
-  let decodedJwtJsonData = window.atob(jwtData);
-  let decodedJwtData = JSON.parse(decodedJwtJsonData);
-  return decodedJwtData.role;
+  try{
+    const token = req.headers.authorization.split(" ")[1];
+    let decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
+    return decodedToken.role;
+  }catch(error){
+    return {message : error}
+  }
+  
 }
 
-exports.doctorAuth = (req, res, next) => {
-  try {
-    const token = req.headers.authorization.split(" ")[1];
-    const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
-    const doctorId = decodedToken.doctorId;
-    if (req.body.doctorId && req.body.doctorId !== doctorId) {
-      throw "Doctor ID not valid";
-    } else {
-      next()
-    }
-  } catch (error) {
-    res.status(401).json({ error: error | "Request not authentified" });
-  }
-};
 
-exports.patientAuth = (req, res, next) => {
+const doctorAuth = (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
     const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
     const patientId = decodedToken.patientId;
-    if (req.body.patientId && req.body.patientId !== patientId) {
-      throw "Patient ID not valid";
-    } else {
-      next()
-    }
+    req.body.patientId = patientId;
+    next()
+    
   } catch (error) {
     res.status(401).json({ error: error | "Request not authentified" });
   }
 };
 
-exports.adminAuth = (req, res, next) => {
+
+const patientAuth = (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
     const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
-    const adminId = decodedToken.adminId;
-    if (req.body.adminId && req.body.adminId !== adminId) {
-      throw "Admin ID not valid";
-    } else {
-      next()
-    }
+    const patientId = decodedToken.patientId;
+    req.body.patientId = patientId;
+    next()
+    
+  } catch (error) {
+    res.status(401).json({ error: error | "Request not authentified" });
+  }
+};
+
+const adminAuth = (req, res, next) => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
+    const patientId = decodedToken.patientId;
+    req.body.patientId = patientId;
+    next()
+    
   } catch (error) {
     res.status(401).json({ error: error | "Request not authentified" });
   }

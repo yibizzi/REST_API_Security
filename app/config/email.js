@@ -2,8 +2,8 @@ const hbs = require('nodemailer-express-handlebars');
 const nodemailer = require('nodemailer');
 const path = require('path');
 
-const email = process.env.MAILER_EMAIL_ID || 'testhealthapp@outlook.com';
-const pass = process.env.MAILER_PASSWORD || 'test123456789';
+const email = process.env.MAILER_EMAIL_ID || 'testrestapi2021@outlook.com';
+const pass = process.env.MAILER_PASSWORD || 'test2021';
 
 
 const smtpTransport = nodemailer.createTransport({

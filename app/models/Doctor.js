@@ -50,9 +50,8 @@ const doctorSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  location: {
-    longitude: Number,
-    latitude: Number,
+  adress : {
+    type : String,
   },
   description: String,
   ratings: [rating],

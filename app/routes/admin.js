@@ -11,10 +11,10 @@ router.put('/auth/reset-password',adminController.resetPassword);
 
 
 //Other routes:
-router.get("/", adminController.getAdmins);
-router.get("/:adminId", adminController.getAdminById);
-router.put("/:adminId", adminController.updateAdmin);
-router.delete("/:adminId",  adminController.deleteAdmin);
+router.get("/", auth, adminController.getAdmins);
+router.get("/:adminId", auth, adminController.getAdminById);
+router.put("/:adminId", auth,adminController.updateAdmin);
+router.delete("/:adminId", auth,adminController.deleteAdmin);
 
 
 module.exports = router;

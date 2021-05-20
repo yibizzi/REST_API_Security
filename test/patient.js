@@ -31,7 +31,7 @@ describe("Testing patient controllers", () => {
 
     describe("GET /patients/:patientId", () => {
         it("Should GET patient by his id", done => {
-            const patientId = "609f7df7d463e13a28536a6e";
+            const patientId = "60a576539da341157870d415";
             chai.request(server)
             .get("/patients/" + patientId)
             .end((err, res) => {
@@ -40,7 +40,7 @@ describe("Testing patient controllers", () => {
             });
         });
         it("Should not GET patient by his id", done => {
-            const patientId = "609f7df7d463e13a28536a6eu";
+            const patientId = "60a576539da341157870d415u";
             chai.request(server)
             .get("/patients/" + patientId)
             .end((err, res) => {
@@ -52,7 +52,7 @@ describe("Testing patient controllers", () => {
 
     describe("GET /patients/:patientId/appointments", () => {
         it("Should GET patient's appointments", done => {
-            const patientId = "609f7df7d463e13a28536a6e";
+            const patientId = "60a576539da341157870d415";
             chai.request(server)
             .get(`/patients/${patientId}/appointments`)
             .send({patientId: patientId})
@@ -63,7 +63,7 @@ describe("Testing patient controllers", () => {
         });
 
         it("Should not GET patient's appointments", done => {
-            const patientId = "609f7df7d463e13a28536a6ei";
+            const patientId = "60a576539da341157870d415i";
             chai.request(server)
             .get(`/patients/${patientId}/appointments`)
             .send({patientId: patientId})
@@ -77,7 +77,7 @@ describe("Testing patient controllers", () => {
 
     describe("GET /patients/:patientId/send-requests", () => {
         it("Should GET patient's send requests", done => {
-            const patientId = "609f7df7d463e13a28536a6e";
+            const patientId = "60a576539da341157870d415";
             chai.request(server)
             .get(`/patients/${patientId}/send-requests`)
             .send({patientId: patientId})
@@ -87,8 +87,8 @@ describe("Testing patient controllers", () => {
             });
         });
 
-        it("Should notGET patient's send requests", done => {
-            const patientId = "609f7df7d463e13a28536a6eu";
+        it("Should not GET patient's send requests", done => {
+            const patientId = "60a576539da341157870d415u";
             chai.request(server)
             .get(`/patients/${patientId}/send-requests`)
             .send({patientId: patientId})
@@ -205,10 +205,9 @@ describe("Testing patient controllers", () => {
         it("Patient should be able declare that he forget the password", done => {
             chai.request(server)
             .post("/patients/auth/forget-password")
-            .send({email: "testemail@gmail.com"})
+            .send({email: "momonamedrouanemo@gmail.com"})
             .end((err, res) => {
-                
-                res.should.have.status(201);
+                res.should.have.status(200);
                 done();
             })
         })
@@ -229,7 +228,6 @@ describe("Testing patient controllers", () => {
             .post("/patient/auth/forget-password")
             .send({email: "test@gmail.com"})
             .end((err, res) => {
-                // console.log(res.body);
                 res.should.have.status(404)
                 done();
             })
@@ -238,10 +236,10 @@ describe("Testing patient controllers", () => {
 
     describe("POST /patients/:patientId/rate-doctor", () => {
         it("Should rate the doctor", done => {
-            const patientId = "609f7df7d463e13a28536a6e";
+            const patientId = "60a576539da341157870d415";
             const object = {
                 doctorId: "60a546dc24893323a4b2aa61",
-                patientId: "609f7df7d463e13a28536a6e",
+                patientId: "60a576539da341157870d415",
                 rating: 5
             }
             chai.request(server)
@@ -254,10 +252,10 @@ describe("Testing patient controllers", () => {
         });
 
         it("Should not rate the doctor", done => {
-            const patientId = "609f7df7d463e13a28536a6e";
+            const patientId = "60a576539da341157870d415";
             const object = {
                 doctorId: "60a546dc24893323a4b2aa61u",
-                patientId: "609f7df7d463e13a28536a6e",
+                patientId: "60a576539da341157870d415",
                 rating: 5
             }
             chai.request(server)
@@ -277,7 +275,7 @@ describe("Testing patient controllers", () => {
         it("Patient should be able to update the rating he gives for a doctor", done => {
             const object = {
                 doctorId: "60a546dc24893323a4b2aa61",
-                patientId: "609f7df7d463e13a28536a6e",
+                patientId: "60a576539da341157870d415",
                 rating: 3
             }
             chai.request(server)
@@ -292,7 +290,7 @@ describe("Testing patient controllers", () => {
         it("Providing invalid patientId, doctorId or wrong URL", done => {
             const object = {
                 doctorId: "60a546dc24893323a4b2aa61o",
-                patientId: "609f7df7d463e13a28536a6e",
+                patientId: "60a576539da341157870d415",
                 rating: 3
             }
             chai.request(server)
@@ -307,7 +305,7 @@ describe("Testing patient controllers", () => {
 
     describe("PUT /patients/:patientId", () => {
         it("Patient should be able to update his information", done => {
-            const patientId = "609f7df7d463e13a28536a6e";
+            const patientId = "60a576539da341157870d415";
             const object = {
                 age: 30,
                 phoneNumber: 29803758
@@ -322,7 +320,7 @@ describe("Testing patient controllers", () => {
         });
 
         it("Providing invalid patientId or wrong URL", done => {
-            const patientId = "609f7df7d463e13a28536a6eo";
+            const patientId = "60a576539da341157870d415o";
             const object = {
                 age: 30,
                 phoneNumber: 29803758
@@ -386,25 +384,25 @@ describe("Testing patient controllers", () => {
     });
 
     //---------------------- Test DELETE route ----------------------//
-    describe("DELETE /patients/:patientId", () => {
-        it("Should delete a given patient", done => {
-            const patientId = "609f7df7d463e13a28536a6e";
-            chai.request(server)
-            .delete(`/patients/${patientId}`)
-            .end((err, res) => {
-                res.should.have.status(200);
-                done();
-            });
-        });
+    // describe("DELETE /patients/:patientId", () => {
+    //     it("Should delete a given patient", done => {
+    //         const patientId = "60a576539da341157870d415";
+    //         chai.request(server)
+    //         .delete(`/patients/${patientId}`)
+    //         .end((err, res) => {
+    //             res.should.have.status(200);
+    //             done();
+    //         });
+    //     });
 
-        it("Providing invalid patientId or wrong URL", done => {
-            const patientId = "609f7df7d463e13a28536a6eo";
-            chai.request(server)
-            .delete(`/patients/${patientId}`)
-            .end((err, res) => {
-                res.should.have.status(404);
-                done();
-            });
-        });
-    });
+    //     it("Providing invalid patientId or wrong URL", done => {
+    //         const patientId = "60a576539da341157870d415o";
+    //         chai.request(server)
+    //         .delete(`/patients/${patientId}`)
+    //         .end((err, res) => {
+    //             res.should.have.status(404);
+    //             done();
+    //         });
+    //     });
+    // });
 })
