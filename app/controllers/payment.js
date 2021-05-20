@@ -52,11 +52,12 @@ const createPayment = async (req, res, cusId) => {
                         patientId: req.body.patientId,
                         customerId: cusId,
                         appointmenId: req.body.appointmenId,
-                        amount: req.body.amount,
+                        amount: price,
                         description: req.body.description
                     });
-                    savedPayment.save();
-                    res.send(payment)
+                    savedPayment.save()
+                    .then(() => res.status(201).json({message: "Your bill has been paid successfully"}))
+                    .catch(() => res.status(500).json({error: "Something wrong"}))
                 })
                 .catch(err => res.send(err));
         })
@@ -74,5 +75,5 @@ exports.getPaymentById = (req, res) => {
 exports.getPayments = (req, res) => {
     Payment.find({})
         .then(payments => res.status(200).json(payments))
-        .then(err => res.status(500).json(err));
+        .then(err => res.status(404).json(err));
 }
