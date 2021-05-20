@@ -62,8 +62,8 @@ exports.auth = (req, res, next) => {
   } else if (role == "patient") {
     patientAuth(req, res, next);
   } else {
-    res.json({
-      error: "Please assign one of these roles ( admin, patient, doctor )"
+    res.status(401).json({
+      error: "Your token does't contain a role!"
     });
   }
 };

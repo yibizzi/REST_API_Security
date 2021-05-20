@@ -284,18 +284,18 @@ exports.confirmAppointment = (req, res) => {
                 doctor.appointments.push(req.body.appointmentId);
                 doctor.save();
                 patient.save();
-                return res.json({ message: "Appointment was accepted" });
+                return res.status(200).json({ message: "Appointment was accepted" });
               }
               console.log(req.body.isConfirmed);
               patient.save();
               doctor.save();
-              return res.json({ message: "Appointment was refused" });
+              return res.status(200).json({ message: "Appointment was refused" });
             })
-            .catch(() => res.json({ error: "Patient Not Found" }));
+            .catch(() => res.status(404).json({ error: "Patient Not Found" }));
         })
-        .catch(() => res.json({ error: "Doctor Not Found" }));
+        .catch(() => res.status(404).json({ error: "Doctor Not Found" }));
     })
-    .catch(() => res.json({ error: "AppointmentId is not valid" }));
+    .catch(() => res.status(404).json({ error: "AppointmentId is not valid" }));
 
 
 

@@ -99,31 +99,30 @@ const cancelAppointmentPatient = (patient, req, res) => {
                 const check =
                   cancelAppointmentDoctor(doctor, req, res) &&
                   cancelAppointmentPatient(patient, req, res);
-                console.log(check);
                 if (check) {
-                  return res.send({
+                  return res.status(200).send({
                     message: "appointment was canceld",
                   });
                 } else {
-                  return res.send({
-                    error: "Something goes wrong",
+                  return res.stauts(400).send({
+                    error: "Something went wrong",
                   });
                 }
               })
               .catch(() =>
-                res.send({
+                res.status(404).send({
                   error: "Doctor Not Found",
                 })
               );
           })
           .catch(() =>
-            res.send({
-              erroe: "Patient Not Found",
+            res.status(404).send({
+              error: "Patient Not Found",
             })
           )
         })
       .catch(() =>
-        res.send({
+        res.status(404).send({
           error: "Appointment Not Found",
         })
       );
