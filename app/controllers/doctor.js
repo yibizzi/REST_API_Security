@@ -1,31 +1,13 @@
 const Doctor = require("../models/Doctor");
 const Patient = require("../models/Patient");
 const Appointment = require("../models/Appointment");
+const pagination = require("../helpers/pagination");
 const { RESET_PASSWORD_URL } = require("../config/config");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { smtpTransport, email } = require("../config/email");
 var async = require("async");
 var crypto = require("crypto");
-
-//Setting offset and limit ;
-const setOffset = (defaultOffset = 0, queryOffset) => {
-  if (queryOffset != defaultOffset) {
-    return queryOffset;
-  } else {
-    return defaultOffset;
-  }
-};
-
-const setLimit = (defaultLimit = 10, limitMax = 30, queryLimit) => {
-  if (queryLimit && queryLimit < limitMax) {
-    return queryLimit;
-  } else if (queryLimit && queryLimit >= limitMax) {
-    return limitMax;
-  } else {
-    return defaultLimit;
-  }
-};
 
 exports.signup = (req, res, next) => {
   bcrypt
@@ -225,47 +207,28 @@ exports.resetPassword = function (req, res, next) {
 
 exports.getDoctors = (req, res) => {
   const query = req.query;
-  const offset = setOffset(query.offset);
-  const limit = setLimit(query.limit);
-  if (Object.entries(query).length == 0) {
-    Doctor.find({})
-      .then((doctors) => {
-        let secureDoctor = [];
-        doctors.map((doctor) => {
-          doctor = doctor.toObject();
-          delete doctor.password;
-          delete doctor.appointments;
-          delete doctor.recievedRequests;
-          delete doctor.ratings;
-          secureDoctor.push(doctor);
-        });
-        res.status(200).json(secureDoctor);
+  const offset = parseInt(pagination.setOffset(req.body.offset));
+  const limit = parseInt(pagination.setLimit(req.body.limit));
+  Doctor.find(query)
+    .skip(offset)
+    .limit(limit)
+    .then((doctors) => {
+      let secureDoctor = [];
+      doctors.map((doctor) => {
+        doctor = doctor.toObject();
+        delete doctor.password;
+        delete doctor.appointments;
+        delete doctor.recievedRequests;
+        delete doctor.ratings;
+        secureDoctor.push(doctor);
+      });
+      res.status(200).json(secureDoctor);
+    })
+    .catch((err) =>
+      res.status(404).json({
+        error: err,
       })
-      .catch((err) =>
-        res.status(404).json({
-          error: err,
-        })
-      );
-  } else {
-    Doctor.find(query)
-      .then((doctors) => {
-        let secureDoctor = [];
-        doctors.map((doctor) => {
-          doctor = doctor.toObject();
-          delete doctor.password;
-          delete doctor.appointments;
-          delete doctor.recievedRequests;
-          delete doctor.ratings;
-          secureDoctor.push(doctor);
-        });
-        res.status(200).json(secureDoctor);
-      })
-      .catch((error) =>
-        res.status(404).json({
-          error: "Doctor not found",
-        })
-      );
-  }
+    );
 };
 
 exports.getDoctorById = (req, res) => {
@@ -298,7 +261,7 @@ exports.updateDoctorInfo = (req, res) => {
       if (err.nModified === 1) {
         res.status(200).json({ message: "Doctor updated successfully" });
       } else {
-        res.status(404).json(err);
+        res.status(409).json({error : "Doctor couldn't be updated"});
       }
     })
     .catch((error) =>
@@ -332,7 +295,6 @@ exports.confirmAppointment = (req, res) => {
                   .status(200)
                   .json({ message: "Appointment was accepted" });
               }
-              console.log(req.body.isConfirmed);
               patient.save();
               doctor.save();
               return res
@@ -347,19 +309,19 @@ exports.confirmAppointment = (req, res) => {
 };
 
 exports.doctorAppointments = (req, res) => {
-  Doctor.findOne({ _id: req.body.doctorId })
+  Doctor.findOne({ _id: req.params.doctorId })
     .then((doctor) => res.status(200).send(doctor.appointments))
     .catch((err) => res.status(404).json({ error: "Doctor Not Found" }));
 };
 
 exports.doctorRecievedRequests = (req, res) => {
-  Doctor.findOne({ _id: req.body.doctorId })
+  Doctor.findOne({ _id: req.params.doctorId })
     .then((doctor) => res.status(200).send(doctor.recievedRequests))
     .catch((err) => res.status(404).json({ error: "Doctor Not Found" }));
 };
 
 exports.doctorRating = (req, res) => {
-  Doctor.findOne({ _id: req.body.doctorId })
+  Doctor.findOne({ _id: req.params.doctorId })
     .then((doctor) => res.status(200).send(doctor.ratings))
     .catch((err) => res.status(404).json({ error: "Doctor Not Found" }));
 };

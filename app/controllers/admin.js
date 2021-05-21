@@ -11,7 +11,6 @@ exports.signup = (req, res, next) => {
     .hash(req.body.password, 10)
     .then((hash) => {
       const admin = new Admin({
-        // avatar: req.body.avatar,
         fullName: {
           firstName: req.body.firstName,
           lastName: req.body.lastName,

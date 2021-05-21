@@ -10,6 +10,7 @@ router.get("/:appointmentId", appointmentController.getAppointmentbyId);
 router.post("/", appointmentController.askforAppointment);
 router.post("/:appointmentId/pay", paymentControllers.pay);
 router.put("/:appointmentId",appointmentController.updateAppointment);
+router.put("/:appointmentId/cancel-appointment", appointmentController.cancelAppointment);
 router.delete("/:appointmentId", appointmentController.deleteAppointment);
 
 module.exports = router;

@@ -15,11 +15,12 @@ router.put('/auth/reset-password', doctorController.resetPassword);
 router.get("/",doctorController.getDoctors);
 router.get("/:doctorId" , doctorController.getDoctorById);
 router.put("/:doctorId" , doctorController.updateDoctorInfo);
-router.get("/:doctorId/rating", doctorController.doctorRating);
+router.delete("/:doctorId" , doctorController.deleteDoctor);
+router.get("/:doctorId/ratings", doctorController.doctorRating);
 router.get("/:doctorId/appointments", doctorController.doctorAppointments);
 router.get("/:doctorId/recieved-requests", doctorController.doctorRecievedRequests);
 router.put("/:doctorId/confirm-appointment" , doctorController.confirmAppointment);
 router.put("/:doctorId/cancel-appointment", appointmentController.cancelAppointment);
-router.delete("/:doctorId" , doctorController.deleteDoctor);
+
 
 module.exports = router;

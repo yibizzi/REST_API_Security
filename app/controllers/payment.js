@@ -8,7 +8,6 @@ const Appointment = require("../models/Appointment");
 exports.pay = async (req, res) => {
 
     const patient = await Payment.findOne({ patientId: req.body.patientId });
-    console.log(patient);
     if (patient) {
         const customer = await stripe.customers.retrieve(patient.customerId);
         if (customer) {
@@ -32,7 +31,7 @@ const calculatedPrice = (price) => {
 }
 
 const createPayment = async (req, res, cusId) => {
-    const appointment = await Appointment.findOne({ _id: req.body.appointmentId });
+    const appointment = await Appointment.findOne({ _id: req.params.appointmentId });
     const price = appointment.price;
     stripe.paymentIntents.create({
         amount: calculatedPrice(price),
@@ -51,7 +50,7 @@ const createPayment = async (req, res, cusId) => {
                         doctorId: req.body.doctorId,
                         patientId: req.body.patientId,
                         customerId: cusId,
-                        appointmenId: req.body.appointmenId,
+                        appointmenId: req.params.appointmenId,
                         amount: price,
                         description: req.body.description
                     });

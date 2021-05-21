@@ -19,7 +19,7 @@ const doctorAuth = (req, res, next) => {
     const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
     const doctorId = decodedToken.doctorId;
     req.body.doctorId = doctorId;
-    next()
+    next();
     
   } catch (error) {
     res.status(401).json({ error: error | "Request not authentified" });
