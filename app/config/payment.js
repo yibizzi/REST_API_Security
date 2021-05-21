@@ -1,5 +1,7 @@
-const PUBLISHABLE_KEY = "pk_test_51IqHJQHDPd2TIFRsx9A4Fyfu5qWAEL6G8WOJ2COfkqoCzMGXg1P2EQZV5xgzwkyogzrEDau28jbMa8lnamG9Bc9y00BO6Cg8vt";
-const SECRET_KEY = "sk_test_51IqHJQHDPd2TIFRs8rENJmbTQpQvVEvQDNWqn0SHIhGrFwiSCuWmbcruGbbernduh7CsZpgUk8loCUr317rzLTOI008MKFziya";
+require('dotenv').config();
+
+const PUBLISHABLE_KEY = process.env.PUBLISHABLE_KEY;
+const SECRET_KEY = process.env.SECRET_KEY;
 
 exports.PUBLISHABLE_KEY = PUBLISHABLE_KEY;
 exports.SECRET_KEY = SECRET_KEY;

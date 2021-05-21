@@ -20,7 +20,7 @@ exports.pay = async (req, res) => {
             email: req.body.email
         })
             .then(customer => createPayment(req, res, customer.id))
-            .catch(err => res.send("err2"));
+            .catch(err => res.status(400).send("Customer couldn't be created"));
     }
 
 }
@@ -38,14 +38,13 @@ const createPayment = async (req, res, cusId) => {
         currency: 'mad',
         payment_method_types: ['card'],
         customer: cusId,
-        receipt_email: "moadup@gmail.com"
     })
         .then(payment => {
             stripe.paymentIntents.confirm(
                 payment.id,
                 { payment_method: 'pm_card_visa' }
             )
-                .then(payment => {
+                .then((payment) => {
                     const savedPayment = Payment({
                         doctorId: req.body.doctorId,
                         patientId: req.body.patientId,
@@ -58,9 +57,9 @@ const createPayment = async (req, res, cusId) => {
                     .then(() => res.status(201).json({message: "Your bill has been paid successfully"}))
                     .catch(() => res.status(500).json({error: "Something wrong"}))
                 })
-                .catch(err => res.send(err));
+                .catch(err => res.status(400).send({error : `Payment intent is not confirmed cuz of ${err}`}));
         })
-        .catch(() => res.send("err1"))
+        .catch(() => res.status(400).send("PaymentIntent couldn't be created!!"))
 }
 
 

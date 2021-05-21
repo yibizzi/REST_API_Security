@@ -2,7 +2,7 @@ const Doctor = require("../models/Doctor");
 const Patient = require("../models/Patient");
 const Appointment = require("../models/Appointment");
 const pagination = require("../helpers/pagination");
-const { RESET_PASSWORD_URL } = require("../config/config");
+const { RESET_PASSWORD_URL, TOKEN_SECRET } = require("../config/config");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { smtpTransport, email } = require("../config/email");
@@ -64,7 +64,7 @@ exports.login = (req, res, next) => {
                 doctorId: doctor._id,
                 role: "doctor",
               },
-              "RANDOM_TOKEN_SECRET",
+              TOKEN_SECRET,
               {
                 expiresIn: "24h",
               }
@@ -257,13 +257,9 @@ exports.updateDoctorInfo = (req, res) => {
     },
     req.body
   )
-    .then(function (err) {
-      if (err.nModified === 1) {
-        res.status(200).json({ message: "Doctor updated successfully" });
-      } else {
-        res.status(409).json({error : "Doctor couldn't be updated"});
-      }
-    })
+    .then(() =>
+      res.status(201).send({ message: "Doctor updated successfully!" })
+    )
     .catch((error) =>
       res.status(404).json({
         error: "Doctor not found",

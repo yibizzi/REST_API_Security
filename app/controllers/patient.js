@@ -1,7 +1,7 @@
 const Patient = require("../models/Patient");
 const Doctor = require("../models/Doctor");
 const pagination = require("../helpers/pagination");
-const { RESET_PASSWORD_URL } = require("../config/config");
+const { RESET_PASSWORD_URL, TOKEN_SECRET } = require("../config/config");
 const { smtpTransport, email } = require("../config/email");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -64,7 +64,7 @@ exports.login = (req, res, next) => {
                 patientId: patient._id,
                 role: "patient",
               },
-              "RANDOM_TOKEN_SECRET",
+              TOKEN_SECRET,
               {
                 expiresIn: "24h",
               }

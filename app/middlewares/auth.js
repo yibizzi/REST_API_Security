@@ -1,10 +1,10 @@
 const jwt = require("jsonwebtoken");
-
+const {TOKEN_SECRET} = require("../config/config")
 
 function getRole (req) {
   try{
     const token = req.headers.authorization.split(" ")[1];
-    let decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
+    let decodedToken = jwt.verify(token, TOKEN_SECRET);
     return decodedToken.role;
   }catch(error){
     return {message : error}
@@ -16,7 +16,7 @@ function getRole (req) {
 const doctorAuth = (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
-    const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
+    const decodedToken = jwt.verify(token, TOKEN_SECRET);
     const doctorId = decodedToken.doctorId;
     req.body.doctorId = doctorId;
     next();
@@ -30,7 +30,7 @@ const doctorAuth = (req, res, next) => {
 const patientAuth = (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
-    const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
+    const decodedToken = jwt.verify(token, TOKEN_SECRET);
     const patientId = decodedToken.patientId;
     req.body.patientId = patientId;
     next()
@@ -43,7 +43,7 @@ const patientAuth = (req, res, next) => {
 const adminAuth = (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
-    const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
+    const decodedToken = jwt.verify(token, TOKEN_SECRET);
     const adminId = decodedToken.adminId;
     req.body.adminId = adminId;
     next()

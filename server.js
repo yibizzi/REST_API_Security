@@ -2,13 +2,14 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-const MONGO_URI = require("./app/config/config").MONGO_URI;
-const PORT = require("./app/config/config").PORT;
+const {PORT, MONGO_URI} = require("./app/config/config");
 const appointmentRoutes = require("./app/routes/appointment");
 const doctorRoutes = require("./app/routes/doctor");
 const patientRoutes = require("./app/routes/patient");
 const adminRoutes = require("./app/routes/admin");
 const paymentRoutes = require("./app/routes/payment");
+require('dotenv').config();
+console.log(process.env);
 
 const app = express();
 

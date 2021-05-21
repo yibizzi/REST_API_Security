@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 var async = require("async");
 var crypto = require("crypto");
 const { smtpTransport, email } = require("../config/email");
-const { RESET_PASSWORD_URL } = require("../config/config");
+const { RESET_PASSWORD_URL, TOKEN_SECRET } = require("../config/config");
 
 exports.signup = (req, res, next) => {
   bcrypt
@@ -40,9 +40,13 @@ exports.login = (req, res, next) => {
           }
           res.status(200).json({
             adminId: admin._id,
-            token: jwt.sign({ adminId: admin._id, role: "admin" }, "RANDOM_TOKEN_SECRET", {
-              expiresIn: "24h",
-            }),
+            token: jwt.sign(
+              { adminId: admin._id, role: "admin" },
+              TOKEN_SECRET,
+              {
+                expiresIn: "24h",
+              }
+            ),
           });
         })
         .catch((error) => res.status(500).json({ error }));
@@ -115,47 +119,46 @@ exports.forgetPassword = function (req, res) {
 exports.resetPassword = function (req, res, next) {
   Admin.findOne({
     reset_password_token: req.query.token,
-  })
-    .exec(function (err, admin) {
-      if (!err && admin) {
-        if (req.body.newPassword === req.body.verifyPassword) {
-          admin.password = bcrypt.hashSync(req.body.newPassword, 10);
-          admin.reset_password_token = undefined;
-          admin.reset_password_expires = undefined;
-          admin.save(function (err) {
-            if (err) {
-              return res.status(422).json(err);
-            } else {
-              var data = {
-                to: admin.email,
-                from: email,
-                template: "reset_password_email",
-                subject: "Password Reset Confirmation",
-                context: {
-                  name: admin.fullName.firstName,
-                },
-              };
+  }).exec(function (err, admin) {
+    if (!err && admin) {
+      if (req.body.newPassword === req.body.verifyPassword) {
+        admin.password = bcrypt.hashSync(req.body.newPassword, 10);
+        admin.reset_password_token = undefined;
+        admin.reset_password_expires = undefined;
+        admin.save(function (err) {
+          if (err) {
+            return res.status(422).json(err);
+          } else {
+            var data = {
+              to: admin.email,
+              from: email,
+              template: "reset_password_email",
+              subject: "Password Reset Confirmation",
+              context: {
+                name: admin.fullName.firstName,
+              },
+            };
 
-              smtpTransport.sendMail(data, function (err) {
-                if (!err) {
-                  return res.json({ message: "Password reset" });
-                } else {
-                  return done(err);
-                }
-              });
-            }
-          });
-        } else {
-          return res.status(422).send({
-            message: "Passwords do not match",
-          });
-        }
+            smtpTransport.sendMail(data, function (err) {
+              if (!err) {
+                return res.json({ message: "Password reset" });
+              } else {
+                return done(err);
+              }
+            });
+          }
+        });
       } else {
-        return res.status(400).send({
-          message: "Password reset token is invalid or has expired.",
+        return res.status(422).send({
+          message: "Passwords do not match",
         });
       }
-    });
+    } else {
+      return res.status(400).send({
+        message: "Password reset token is invalid or has expired.",
+      });
+    }
+  });
 };
 
 exports.getAdmins = (req, res) => {
@@ -166,7 +169,7 @@ exports.getAdmins = (req, res) => {
 
 exports.getAdminById = (req, res) => {
   Admin.findOne({ _id: req.params.adminId })
-    .then(admin => res.status(200).json(admin))
+    .then((admin) => res.status(200).json(admin))
     .catch(() => res.status(404).json({ error: "Admin Not Found" }));
 };
 

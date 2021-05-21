@@ -1,13 +1,15 @@
+require('dotenv').config();
+
 const hbs = require('nodemailer-express-handlebars');
 const nodemailer = require('nodemailer');
 const path = require('path');
 
-const email = process.env.MAILER_EMAIL_ID || 'testrestapi2021@outlook.com';
-const pass = process.env.MAILER_PASSWORD || 'test2021';
+const email = process.env.MAILER_EMAIL_ID ;
+const pass = process.env.MAILER_PASSWORD ;
 
 
 const smtpTransport = nodemailer.createTransport({
-  service: process.env.MAILER_SERVICE_PROVIDER || 'hotmail',
+  service: process.env.MAILER_SERVICE_PROVIDER,
   auth: {
     user: email,
     pass: pass
