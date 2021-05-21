@@ -50,8 +50,16 @@ const doctorSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  adress : {
-    type : String,
+  adress: {
+    city: {
+      type: String,
+    },
+    country: {
+      type: String,
+    },
+    details: {
+      type: String,
+    },
   },
   description: String,
   ratings: [rating],
