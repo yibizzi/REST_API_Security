@@ -206,11 +206,16 @@ exports.resetPassword = function (req, res, next) {
 };
 
 exports.getDoctors = (req, res) => {
-  const query = req.query;
+  var query = req.query;
   const offset = parseInt(pagination.setOffset(req.query.offset));
   const limit = parseInt(pagination.setLimit(req.query.limit));
   delete query.offset;
   delete query.limit;
+  const prop = Object.keys(query)[0];
+  const value = Object.values(query)[0];
+  if(Object.entries(query).length !== 0){
+    query = { [prop]: { "$regex": value, "$options": "i" } } ;
+  }
   Doctor.find(query)
     .skip(offset)
     .limit(limit)
