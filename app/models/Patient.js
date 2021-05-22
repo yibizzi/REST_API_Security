@@ -56,8 +56,7 @@ const patientSchema = mongoose.Schema({
     required: true,
   },
   sendRequest: Array,
-  appointments: Array,
-  history: Array,
+  appointments: Array
 });
 
 patientSchema.plugin(uniqueValidator);
