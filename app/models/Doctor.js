@@ -50,7 +50,7 @@ const doctorSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  adress: {
+  address: {
     city: {
       type: String,
     },

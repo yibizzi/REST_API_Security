@@ -8,8 +8,7 @@ const doctorRoutes = require("./app/routes/doctor");
 const patientRoutes = require("./app/routes/patient");
 const adminRoutes = require("./app/routes/admin");
 const paymentRoutes = require("./app/routes/payment");
-require('dotenv').config();
-console.log(process.env);
+
 
 const app = express();
 

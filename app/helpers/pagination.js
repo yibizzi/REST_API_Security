@@ -1,16 +1,16 @@
 //Setting offset and limit ;
-exports.setOffset = (defaultOffset = 0, bodyOffset) => {
-  if (bodyOffset) {
-    return bodyOffset;
+exports.setOffset = (defaultOffset = 0, queryOffset) => {
+  if (queryOffset) {
+    return queryOffset;
   }
   return defaultOffset;
 };
 
 
-exports.setLimit = (defaultLimit = 10, limitMax = 30, bodyLimit) => {
-  if (bodyLimit && bodyLimit < limitMax) {
-    return bodyLimit;
-  } else if (bodyLimit && bodyLimit >= limitMax) {
+exports.setLimit = (defaultLimit = 10, limitMax = 30, queryLimit) => {
+  if (queryLimit && queryLimit < limitMax) {
+    return queryLimit;
+  } else if (queryLimit && queryLimit >= limitMax) {
     return limitMax;
   } else {
     return defaultLimit;
