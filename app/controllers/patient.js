@@ -201,9 +201,12 @@ exports.resetPassword = function (req, res, next) {
 };
 
 exports.getPatients = (req, res) => {
+  const query = req.query;
   const offset = parseInt(pagination.setOffset(req.query.offset));
   const limit = parseInt(pagination.setLimit(req.query.limit));
-  Patient.find({})
+  delete query.offset;
+  delete query.limit;
+  Patient.find(query)
     .skip(offset)
     .limit(limit)
     .then((patients) => {

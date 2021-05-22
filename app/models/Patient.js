@@ -18,6 +18,17 @@ const patientSchema = mongoose.Schema({
       type: String,
       required: true,
     },
+    address: {
+      city: {
+        type: String,
+      },
+      country: {
+        type: String,
+      },
+      details: {
+        type: String,
+      },
+    },
   },
   email: {
     type: String,
