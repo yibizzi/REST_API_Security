@@ -2,6 +2,8 @@ const paymentKeys = require("../config/payment");
 const stripe = require("stripe")(paymentKeys.SECRET_KEY);
 const Payment = require("../models/Payment");
 const Appointment = require("../models/Appointment");
+const Doctor = require("../models/Doctor");
+const Patient = require("../models/Patient");
 
 
 
@@ -54,10 +56,24 @@ const createPayment = async (req, res, cusId) => {
                         description: req.body.description
                     });
                     savedPayment.save()
-                    .then(() => res.status(201).json({message: "Your bill has been paid successfully"}))
-                    .catch(() => res.status(500).json({error: "Something wrong"}))
+                        .then(() => {
+                            Doctor.findOne({ _id: req.body.doctorId })
+                                .then(doctor => {
+                                    doctor.recievedPayments.push(savedPayment._id);
+                                    doctor.save();
+                                })
+                                .catch(() => res.status(404).json({ error: "Doctor Not Found" }));
+                            Patient.findOne({ _id: req.body.patientId })
+                                .then(patient => {
+                                    patient.payments.push(savedPayment._id);
+                                    patient.save();
+                                })
+                                .catch(() => res.status(404).json({ error: "Patient Not Found" }));
+                            res.status(201).json({ message: "Your bill has been paid successfully" })
+                        })
+                        .catch(() => res.status(500).json({ error: "Something wrong" }))
                 })
-                .catch(err => res.status(400).send({error : `Payment intent is not confirmed cuz of ${err}`}));
+                .catch(err => res.status(400).send({ error: `Payment intent is not confirmed cuz of ${err}` }));
         })
         .catch(() => res.status(400).send("PaymentIntent couldn't be created!!"))
 }

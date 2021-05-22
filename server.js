@@ -2,12 +2,11 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-const {PORT, MONGO_URI} = require("./app/config/config");
+const { PORT, MONGO_URI } = require("./app/config/config");
 const appointmentRoutes = require("./app/routes/appointment");
 const doctorRoutes = require("./app/routes/doctor");
 const patientRoutes = require("./app/routes/patient");
 const adminRoutes = require("./app/routes/admin");
-const paymentRoutes = require("./app/routes/payment");
 
 
 const app = express();
@@ -30,9 +29,10 @@ app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use("/appointments", appointmentRoutes);
 app.use("/doctors", doctorRoutes);
 app.use("/patients", patientRoutes);
-app.use("/admins",adminRoutes);
-app.use("/payment", paymentRoutes);
-
+app.use("/admins", adminRoutes);
+app.get("/", (req, res) => {
+  res.send("<h1> Welcome to our RESTfull Health API</h1> ");
+})
 
 mongoose
   .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })

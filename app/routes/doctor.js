@@ -19,6 +19,7 @@ router.delete("/:doctorId" , auth, doctorController.deleteDoctor);
 router.get("/:doctorId/ratings", auth, doctorController.doctorRating);
 router.get("/:doctorId/appointments", auth, doctorController.doctorAppointments);
 router.get("/:doctorId/recieved-requests", auth, doctorController.doctorRecievedRequests);
+router.get("/:doctorId/recieved-payments", auth, doctorController.doctorPayment);
 router.put("/:doctorId/confirm-appointment" , auth, doctorController.confirmAppointment);
 router.put("/:doctorId/cancel-appointment", auth, appointmentController.cancelAppointment);
 

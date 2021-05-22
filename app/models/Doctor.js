@@ -64,7 +64,8 @@ const doctorSchema = mongoose.Schema({
   description: String,
   ratings: [rating],
   recievedRequests: Array,
-  appointments: Array
+  appointments: Array,
+  recievedPayments: Array
 });
 
 doctorSchema.plugin(uniqueValidator);

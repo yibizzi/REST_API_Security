@@ -213,8 +213,8 @@ exports.getDoctors = (req, res) => {
   delete query.limit;
   const prop = Object.keys(query)[0];
   const value = Object.values(query)[0];
-  if(Object.entries(query).length !== 0){
-    query = { [prop]: { "$regex": value, "$options": "i" } } ;
+  if (Object.entries(query).length !== 0) {
+    query = { [prop]: { "$regex": value, "$options": "i" } };
   }
   Doctor.find(query)
     .skip(offset)
@@ -227,6 +227,7 @@ exports.getDoctors = (req, res) => {
         delete doctor.appointments;
         delete doctor.recievedRequests;
         delete doctor.ratings;
+        delete doctor.recievedPayments;
         secureDoctor.push(doctor);
       });
       res.status(200).json(secureDoctor);
@@ -248,6 +249,7 @@ exports.getDoctorById = (req, res) => {
       delete doctor.appointments;
       delete doctor.recievedRequests;
       delete doctor.ratings;
+      delete doctor.recievedPayments;
       res.status(200).json(doctor);
     })
     .catch((error) =>
@@ -273,6 +275,12 @@ exports.updateDoctorInfo = (req, res) => {
       })
     );
 };
+
+exports.doctorPayment = (req, res) => {
+  Doctor.findOne({ _id: req.params.doctorId })
+    .then(doctor => res.status(200).send(doctor.recievedPayments))
+    .catch(() => res.status(404).json({ error: "Doctor Not Found" }));
+}
 
 exports.confirmAppointment = (req, res) => {
   Appointment.findOne({ _id: req.body.appointmentId })

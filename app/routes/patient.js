@@ -17,6 +17,7 @@ router.post("/:patientId/rate-doctor", auth, patientController.rateDoctor);
 router.put("/:patientId/rate-doctor", auth, patientController.updateRating);
 router.get("/:patientId/appointments", auth, patientController.patientAppointments);
 router.get("/:patientId/send-requests", auth, patientController.patientSendRequests);
+router.get("/:patientId/payments", auth, patientController.patientPayment);
 router.put("/:patientId", auth, patientController.updatePatientInfo);
 router.delete("/:patientId", auth, patientController.deletePatient);
 
