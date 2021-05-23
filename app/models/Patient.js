@@ -18,6 +18,17 @@ const patientSchema = mongoose.Schema({
       type: String,
       required: true,
     },
+    address: {
+      city: {
+        type: String,
+      },
+      country: {
+        type: String,
+      },
+      details: {
+        type: String,
+      },
+    },
   },
   email: {
     type: String,
@@ -46,7 +57,7 @@ const patientSchema = mongoose.Schema({
   },
   sendRequest: Array,
   appointments: Array,
-  history: Array,
+  payments: Array
 });
 
 patientSchema.plugin(uniqueValidator);

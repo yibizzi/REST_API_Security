@@ -201,9 +201,17 @@ exports.resetPassword = function (req, res, next) {
 };
 
 exports.getPatients = (req, res) => {
+  var query = req.query;
   const offset = parseInt(pagination.setOffset(req.query.offset));
   const limit = parseInt(pagination.setLimit(req.query.limit));
-  Patient.find({})
+  delete query.offset;
+  delete query.limit;
+  const prop = Object.keys(query)[0];
+  const value = Object.values(query)[0];
+  if (Object.entries(query).length !== 0) {
+    query = { [prop]: { "$regex": value, "$options": "i" } };
+  }
+  Patient.find(query)
     .skip(offset)
     .limit(limit)
     .then((patients) => {
@@ -213,6 +221,7 @@ exports.getPatients = (req, res) => {
         delete patient.password;
         delete patient.appointments;
         delete patient.sendRequest;
+        delete patient.payments;
         securePatients.push(patient);
       });
       res.status(200).json(securePatients);
@@ -233,6 +242,7 @@ exports.getPatientById = (req, res) => {
       delete patient.password;
       delete patient.appointments;
       delete patient.sendRequest;
+      delete patient.payments;
       res.status(200).json(patient);
     })
     .catch((err) =>
@@ -269,6 +279,12 @@ exports.rateDoctor = (req, res) => {
     })
     .catch(() => res.status(404).send({ error: "Doctor Not Found" }));
 };
+
+exports.patientPayment = (req, res) => {
+  Patient.findOne({ _id: req.params.patientId })
+    .then(patient => res.status(200).send(patient.payments))
+    .catch(() => res.status(404).json({ error: "Patient Not Found" }));
+}
 
 exports.updateRating = (req, res) => {
   Doctor.findOne({ _id: req.body.doctorId })

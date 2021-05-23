@@ -12,15 +12,16 @@ router.post('/auth/forget-password', doctorController.forgetPassword);
 router.put('/auth/reset-password', doctorController.resetPassword);
 
 //Other Routes:
-router.get("/",doctorController.getDoctors);
-router.get("/:doctorId" , doctorController.getDoctorById);
-router.put("/:doctorId" , doctorController.updateDoctorInfo);
-router.delete("/:doctorId" , doctorController.deleteDoctor);
-router.get("/:doctorId/ratings", doctorController.doctorRating);
-router.get("/:doctorId/appointments", doctorController.doctorAppointments);
-router.get("/:doctorId/recieved-requests", doctorController.doctorRecievedRequests);
-router.put("/:doctorId/confirm-appointment" , doctorController.confirmAppointment);
-router.put("/:doctorId/cancel-appointment", appointmentController.cancelAppointment);
+router.get("/", auth,doctorController.getDoctors);
+router.get("/:doctorId" , auth, doctorController.getDoctorById);
+router.put("/:doctorId" , auth, doctorController.updateDoctorInfo);
+router.delete("/:doctorId" , auth, doctorController.deleteDoctor);
+router.get("/:doctorId/ratings", auth, doctorController.doctorRating);
+router.get("/:doctorId/appointments", auth, doctorController.doctorAppointments);
+router.get("/:doctorId/recieved-requests", auth, doctorController.doctorRecievedRequests);
+router.get("/:doctorId/recieved-payments", auth, doctorController.doctorPayment);
+router.put("/:doctorId/confirm-appointment" , auth, doctorController.confirmAppointment);
+router.put("/:doctorId/cancel-appointment", auth, appointmentController.cancelAppointment);
 
 
 module.exports = router;
